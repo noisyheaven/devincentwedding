@@ -109,7 +109,7 @@
   var g = document.getElementById("gal"); if (!g) return;
   var calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
   var DELAY = 3200;                       // jeda antar foto (milidetik); ubah kalau mau lebih cepat/lambat
-  var timer = null, visible = false, held = false;
+  var timer = null, visible = false, held = false, uiUpdate = null;
 
   function items() { return [].slice.call(g.children); }
   function center(el) { return el.offsetLeft + el.offsetWidth / 2 - g.clientWidth / 2; }
@@ -121,6 +121,7 @@
   function mark() {
     var c = current();
     items().forEach(function (el, i) { el.classList.toggle("act", i === c); });
+    if (uiUpdate) uiUpdate(c);
   }
   var ticking = false;
   g.addEventListener("scroll", function () {
@@ -142,8 +143,59 @@
   function hold() { held = true; stop(); clearTimeout(resume); }
   function release() { clearTimeout(resume); resume = setTimeout(function () { held = false; play(); }, 2500); }
 
+  // ---- kontrol galeri: titik, penghitung "3 / 8", panah (desktop) dan petunjuk geser ----
+  var wrap = document.getElementById("galWrap") || g.parentNode;
+  var ui = document.createElement("div"); ui.className = "gal-ui";
+  var dotBox = document.createElement("div"); dotBox.className = "gal-dots";
+  var cnt = document.createElement("div"); cnt.className = "gal-count";
+  var hint = document.createElement("p"); hint.className = "gal-hint";
+  hint.textContent = matchMedia("(hover: hover)").matches ? "Tarik foto atau klik panah untuk melihat lainnya" : "Geser untuk melihat foto lainnya";
+  ui.appendChild(dotBox); ui.appendChild(cnt); ui.appendChild(hint);
+  wrap.parentNode.insertBefore(ui, wrap.nextSibling);
+
+  function go(i) {
+    var L = items(); if (!L.length) return;
+    i = (i + L.length) % L.length;
+    hold(); g.scrollTo({ left: center(L[i]), behavior: calm ? "auto" : "smooth" }); release();
+  }
+  function arrow(cls, label, d, step) {
+    var b = document.createElement("button"); b.type = "button"; b.className = "gal-arrow " + cls; b.setAttribute("aria-label", label);
+    b.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
+    b.addEventListener("click", function () { hideHint(); go(current() + step); });
+    wrap.appendChild(b);
+  }
+  arrow("prev", "Foto sebelumnya", "M15 5l-7 7 7 7", -1);
+  arrow("next", "Foto berikutnya", "M9 5l7 7-7 7", 1);
+
+  var dots = [];
+  function buildDots() {
+    dotBox.innerHTML = ""; dots = [];
+    items().forEach(function (el, i) {
+      var b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-label", "Foto " + (i + 1));
+      b.addEventListener("click", function () { hideHint(); go(i); });
+      dotBox.appendChild(b); dots.push(b);
+    });
+  }
+  buildDots();
+  uiUpdate = function (c) {
+    if (dots.length !== items().length) buildDots();
+    dots.forEach(function (b, i) { b.classList.toggle("on", i === c); });
+    cnt.textContent = (c + 1) + " / " + dots.length;
+  };
+
+  var hintDone = false, hintTimer = null;
+  function showHint() {
+    if (hintDone || calm) return;
+    hint.classList.add("on");
+    clearTimeout(hintTimer); hintTimer = setTimeout(hideHint, 7000);
+  }
+  function hideHint() { hintDone = true; clearTimeout(hintTimer); hint.classList.remove("on"); }
+  g.addEventListener("pointerdown", hideHint);
+  g.addEventListener("touchstart", hideHint, { passive: true });
+  g.addEventListener("wheel", hideHint, { passive: true });
+
   // jalan hanya saat galeri terlihat di layar
-  new IntersectionObserver(function (es) { visible = es[0].isIntersecting; visible ? play() : stop(); }, { threshold: .35 }).observe(g);
+  new IntersectionObserver(function (es) { visible = es[0].isIntersecting; visible ? (play(), showHint()) : stop(); }, { threshold: .35 }).observe(g);
   document.addEventListener("visibilitychange", play);
   g.addEventListener("touchstart", hold, { passive: true });
   g.addEventListener("touchend", release, { passive: true });
@@ -175,4 +227,32 @@
   function init() { var L = items(); if (L.length) { g.scrollLeft = center(L[0]); mark(); } }
   setTimeout(init, 300); addEventListener("load", init);
   addEventListener("resize", mark);
+})();
+
+// NAMA HURUF DEMI HURUF + REVEAL BERTAHAP
+(function () {
+  try {
+    // nama muncul huruf demi huruf (sampul langsung, bagian lain saat terlihat di layar)
+    [].slice.call(document.querySelectorAll(".cover-in h1, .names")).forEach(function (el) {
+      var t = el.textContent.trim(), n = 0;
+      el.setAttribute("aria-label", t); el.textContent = "";
+      t.split(/\s+/).forEach(function (w) {
+        var wd = document.createElement("span"); wd.className = "wd"; wd.setAttribute("aria-hidden", "true");
+        w.split("").forEach(function (c) {
+          var ch = document.createElement("span"); ch.className = "ch"; ch.textContent = c;
+          ch.style.setProperty("--i", n++); wd.appendChild(ch);
+        });
+        el.appendChild(wd); el.appendChild(document.createTextNode(" ")); n++;
+      });
+    });
+    // elemen dalam satu bagian muncul satu per satu (jeda kecil), bukan serentak
+    [].slice.call(document.querySelectorAll("section, .hero-txt, footer")).forEach(function (sec) {
+      var k = 0;
+      [].slice.call(sec.children).forEach(function (el) {
+        if (!el.classList.contains("rv") && !el.classList.contains("zi")) return;
+        if (!el.style.transitionDelay) el.style.transitionDelay = Math.min(k, 5) * 110 + "ms";
+        k++;
+      });
+    });
+  } catch (e) { /* hiasan saja: jangan sampai merusak bagian lain */ }
 })();
