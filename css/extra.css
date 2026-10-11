@@ -110,7 +110,7 @@ footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 }
 
 /* penutup: foto bulat, tanggal, tagar */
-.foot-photo{width:132px;height:132px;border-radius:50%;margin:0 auto 26px;background-position:50% 16%;
+.foot-photo{width:132px;height:132px;border-radius:50%;margin:0 auto 26px;
   border:3px solid rgba(255,255,255,.85);box-shadow:0 0 0 7px rgba(255,255,255,.12)}
 .foot-date{margin-top:16px;font-size:.95rem;letter-spacing:.05em;opacity:.92}
 .foot-tag{margin-top:18px;font:400 .85rem Poppins,sans-serif;letter-spacing:.18em;opacity:.85}
