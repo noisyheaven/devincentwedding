@@ -5,7 +5,7 @@
 /* COVER: photo from the very top (no maroon at the top). The title now sits at the bottom,
    together with the guest name, over the maroon fade, so it never covers faces.
    Change 50% 20% to move the photo: 2nd number lower = show more of the top, higher = more of the bottom. */
-#cover .bg{top:0;background-position:47% 50%}
+#cover .bg{top:0;background-position:48% 50%}
 #cover::after{background:linear-gradient(180deg,rgba(0,0,0,.35) 0,transparent 30%,transparent 45%,var(--wine) 100%)}
 .cover-in h1{text-shadow:0 2px 14px rgba(0,0,0,.5)}
 
@@ -13,10 +13,10 @@
 .hero{padding:0;max-width:none}
 
 /* Top photo under the cover: shown in full. Its height follows the photo's real shape (see js/photos.js) */
-.hero-img{height:auto;min-height:0;aspect-ratio:2/3;background-position:33% 50%}
+.hero-img{height:auto;min-height:0;aspect-ratio:2/3;background-position:35% 50%}
 
 /* Round photo in the footer (uses the cover photo) */
-.foot-photo{background-position:45% 50%}
+.foot-photo{background-position:46% 50%}
 
 /* Bride & groom: tall capsules, both centred */
 .arch{width:min(190px,52vw);aspect-ratio:2/3;border-radius:999px;border:3px solid var(--wine);box-shadow:none;
