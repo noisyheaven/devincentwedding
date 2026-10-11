@@ -22,7 +22,7 @@ var WISHES_URL = "https://script.google.com/macros/s/AKfycbz802CLixLfLcfjH1zOP5i
 var $=function(id){return document.getElementById(id)};
 
 // photos as backgrounds, only if the file exists
-function withImage(el,src){var i=new Image();i.onload=function(){el.style.backgroundImage="url('"+src+"')"};i.src=src}
+function withImage(el,src){var i=new Image();i.onload=function(){el.style.backgroundImage="url('"+src+"')";el.classList.add("ready")};i.src=src}
 document.querySelectorAll("[data-photo]").forEach(function(el){withImage(el,PHOTOS[el.dataset.photo])});
 PHOTOS.gallery.forEach(function(src,i){
   var d=document.createElement("div");d.className="bg rv";d.style.transitionDelay=((i%3)*120)+"ms";
@@ -61,7 +61,13 @@ function pad(n){return n<10?"0"+n:n}
 function tick(){
   var s=Math.max(0,Math.floor((WEDDING-new Date())/1000)),
   v=[[Math.floor(s/86400),"Hari"],[Math.floor(s%86400/3600),"Jam"],[Math.floor(s%3600/60),"Menit"],[s%60,"Detik"]];
-  $("cd").innerHTML=v.map(function(a){return "<div><strong>"+a[0]+"</strong><span>"+a[1]+"</span></div>"}).join("");
+  var cd=$("cd");
+  if(cd.children.length!==4){
+    cd.innerHTML=v.map(function(a){return "<div><strong>"+a[0]+"</strong><span>"+a[1]+"</span></div>"}).join("");
+  }else{                                    // angka berubah -> memutar (flip), kotak tidak dibangun ulang
+    v.forEach(function(a,i){var st=cd.children[i].firstChild;
+      if(st.textContent!=a[0]){st.textContent=a[0];st.classList.remove("flip");void st.offsetWidth;st.classList.add("flip")}});
+  }
 }
 tick();setInterval(tick,1000);
 function g(d){return d.toISOString().replace(/[-:]|\.\d{3}/g,"")}
