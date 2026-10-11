@@ -9,7 +9,7 @@
   }
 
   // saat undangan dibuka
-  $("open").addEventListener("click", function () {
+  document.addEventListener("invitationopen", function () {
     $("nav").hidden = false;
     if (!calm) setTimeout(petals, 500);
   });
@@ -233,7 +233,7 @@
 (function () {
   try {
     // nama muncul huruf demi huruf (sampul langsung, bagian lain saat terlihat di layar)
-    [].slice.call(document.querySelectorAll(".cover-in h1, .names")).forEach(function (el) {
+    [].slice.call(document.querySelectorAll(".env-title h1, .names")).forEach(function (el) {
       var t = el.textContent.trim(), n = 0;
       el.setAttribute("aria-label", t); el.textContent = "";
       t.split(/\s+/).forEach(function (w) {
