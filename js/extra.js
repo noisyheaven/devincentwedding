@@ -102,3 +102,76 @@
     })(t0);
   }
 })();
+
+// GALERI SLIDER: autoplay + geser kiri/kanan (sentuh = geser biasa, mouse = tarik)
+(function () {
+  var g = document.getElementById("gal"); if (!g) return;
+  var calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var DELAY = 3200;                       // jeda antar foto (milidetik); ubah kalau mau lebih cepat/lambat
+  var timer = null, visible = false, held = false;
+
+  function items() { return [].slice.call(g.children); }
+  function center(el) { return el.offsetLeft + el.offsetWidth / 2 - g.clientWidth / 2; }
+  function current() {
+    var L = items(), best = 0, d = 1e9;
+    L.forEach(function (el, i) { var x = Math.abs(center(el) - g.scrollLeft); if (x < d) { d = x; best = i; } });
+    return best;
+  }
+  function mark() {
+    var c = current();
+    items().forEach(function (el, i) { el.classList.toggle("act", i === c); });
+  }
+  var ticking = false;
+  g.addEventListener("scroll", function () {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(function () { ticking = false; mark(); });
+  }, { passive: true });
+
+  function next() {
+    var L = items(); if (L.length < 2) return;
+    var i = current() + 1; if (i >= L.length) i = 0;
+    g.scrollTo({ left: center(L[i]), behavior: "smooth" });
+  }
+  function stop() { clearInterval(timer); timer = null; }
+  function play() {
+    stop(); if (calm || !visible || held || document.hidden) return;
+    timer = setInterval(next, DELAY);
+  }
+  var resume;
+  function hold() { held = true; stop(); clearTimeout(resume); }
+  function release() { clearTimeout(resume); resume = setTimeout(function () { held = false; play(); }, 2500); }
+
+  // jalan hanya saat galeri terlihat di layar
+  new IntersectionObserver(function (es) { visible = es[0].isIntersecting; visible ? play() : stop(); }, { threshold: .35 }).observe(g);
+  document.addEventListener("visibilitychange", play);
+  g.addEventListener("touchstart", hold, { passive: true });
+  g.addEventListener("touchend", release, { passive: true });
+  g.addEventListener("mouseenter", hold);
+  g.addEventListener("mouseleave", release);
+
+  // tarik dengan mouse (desktop); sentuhan di HP sudah bisa digeser bawaan browser
+  var down = false, moved = false, sx = 0, sl = 0;
+  g.addEventListener("pointerdown", function (e) {
+    if (e.pointerType !== "mouse") return;
+    down = true; moved = false; sx = e.clientX; sl = g.scrollLeft;
+  });
+  addEventListener("pointermove", function (e) {
+    if (!down) return;
+    var dx = e.clientX - sx;
+    if (!moved && Math.abs(dx) > 5) { moved = true; g.classList.add("dragging"); }
+    if (moved) g.scrollLeft = sl - dx;
+  });
+  addEventListener("pointerup", function () {
+    if (!down) return; down = false; g.classList.remove("dragging");
+  });
+  // setelah menarik, jangan dianggap klik (supaya foto tidak terbuka)
+  document.addEventListener("click", function (e) {
+    if (moved && g.contains(e.target)) { e.stopPropagation(); e.preventDefault(); }
+    moved = false;
+  }, true);
+
+  // foto digambar oleh main.js, jadi tunggu sebentar lalu mulai di foto pertama
+  function init() { var L = items(); if (L.length) { g.scrollLeft = center(L[0]); mark(); } }
+  setTimeout(init, 300); addEventListener("load", init);
+  addEventListener("resize", mark);
+})();
