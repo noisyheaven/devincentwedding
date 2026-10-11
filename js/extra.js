@@ -61,7 +61,8 @@
   ];
   function z(d) { return new Date(d).toISOString().replace(/[-:]|\.\d{3}/g, ""); }
   function esc(s) { return s.replace(/[,;]/g, "\\$&"); }
-  $("ics").addEventListener("click", function (e) {
+  // (tombol #ics sudah dihapus dari index.html; dijaga supaya tidak error dan merusak galeri di bawah)
+  if ($("ics")) $("ics").addEventListener("click", function (e) {
     e.preventDefault();
     var L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Devincent Wedding//ID", "CALSCALE:GREGORIAN"];
     EV.forEach(function (v, i) {
