@@ -1,6 +1,6 @@
 /* ============ EDIT YOUR DETAILS HERE ============ */
 // Wedding date/time for the countdown & calendar button (WIB = +07:00)
-var WEDDING = new Date("2026-12-26T09:00:00+07:00");
+var WEDDING = new Date("2026-12-26T11:00:00+07:00");
 var EVENT_TITLE = "Pernikahan Vincensius & Devi";
 
 // Photos in the "images" folder (a burgundy placeholder shows until the file exists)
