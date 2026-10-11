@@ -1,0 +1,30 @@
+/* TAMBAHAN (dimuat paling akhir, tidak mengubah style.css / photos.css) */
+body.locked{height:100dvh}
+.pill{margin:4px}
+
+/* mempelai masuk dari kiri dan kanan */
+.rv.l{transform:translateX(-44px)}
+.rv.r{transform:translateX(44px)}
+.rv.l.in,.rv.r.in{transform:none}
+
+/* peta acara */
+.map{display:block;width:100%;height:190px;border:0;border-radius:12px;margin-top:18px}
+.acc{font:500 1.3rem "Playfair Display",Georgia,serif;letter-spacing:.06em;color:var(--wine);margin:8px 0 2px}
+
+/* kelopak bunga (hanya setelah undangan dibuka) */
+#petals{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+
+/* menu bawah */
+#nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;gap:2px;max-width:calc(100vw - 16px);padding:5px;background:rgba(85,0,26,.95);border-radius:99px;box-shadow:0 6px 24px rgba(0,0,0,.3)}
+#nav[hidden],#nav a[hidden]{display:none}
+#nav a{color:rgba(255,255,255,.75);text-decoration:none;font:400 .72rem Poppins,sans-serif;padding:9px 10px;border-radius:99px;transition:background .25s,color .25s}
+#nav a.on{background:#fff;color:var(--wine)}
+#nav a:focus-visible,.float button:focus-visible,.pill:focus-visible{outline:2px solid #fff;outline-offset:2px;box-shadow:0 0 0 4px var(--wine)}
+.float{bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+.float button{display:grid;place-items:center}
+footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+
+/* pesan singkat (mis. "Nomor rekening disalin") */
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);z-index:60;background:#fff;color:var(--wine);border:1px solid var(--wine);border-radius:99px;padding:9px 20px;font:400 .85rem Poppins,sans-serif;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){#petals{display:none}.rv.l,.rv.r{transform:none}}
