@@ -1,5 +1,9 @@
 /* TAMBAHAN (dimuat paling akhir, tidak mengubah style.css / photos.css) */
-body.locked{height:100dvh}
+/* COVER: kunci halaman selama sampul terbuka supaya foto tidak bisa digeser naik/turun dan selalu memenuhi layar */
+html:has(body.locked){overflow:hidden;overscroll-behavior:none;height:100%}
+body.locked{position:fixed;top:0;left:0;width:100%;height:100vh;height:100dvh;overflow:hidden;overscroll-behavior:none;touch-action:none}
+#cover{top:0;left:0;right:0;bottom:auto;width:100%;height:100vh;height:100dvh;overscroll-behavior:none;touch-action:none;overflow:hidden}
+#cover .bg{height:100%}
 .pill{margin:4px}
 
 /* mempelai masuk dari kiri dan kanan */
