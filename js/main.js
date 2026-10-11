@@ -34,17 +34,11 @@ var to=new URLSearchParams(location.search).get("to");
 if(to)$("guest").textContent=to;
 
 // open invitation
-var bgm=$("bgm"),opened=false;
+var bgm=$("bgm");
 $("open").addEventListener("click",function(){
-  if(opened)return;opened=true;
-  var calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  $("cover").classList.add("opening");                       // segel pecah -> amplop terbuka (lihat css/extra.css)
-  bgm.play().then(function(){$("musicBtn").classList.add("on")}).catch(function(){});   // harus langsung saat diketuk
-  setTimeout(function(){                                      // setelah animasi selesai: masuk ke halaman utama
-    $("cover").classList.add("gone");document.body.classList.remove("locked");
-    $("float").hidden=false;
-    document.dispatchEvent(new Event("invitationopen"));
-  },calm?350:2250);
+  $("cover").classList.add("gone");document.body.classList.remove("locked");
+  $("float").hidden=false;
+  bgm.play().then(function(){$("musicBtn").classList.add("on")}).catch(function(){});
 });
 bgm.addEventListener("error",function(){$("musicBtn").style.display="none"});
 $("musicBtn").addEventListener("click",function(){
