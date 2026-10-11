@@ -49,3 +49,71 @@ footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
   opacity:.78!important;transform:scale(.88)!important;transition:transform .45s,opacity .45s!important;transition-delay:0s!important}
 #gal .bg.act{opacity:1!important;transform:scale(1)!important}
 @media(prefers-reduced-motion:reduce){#gal .bg{transition:none!important}}
+
+/* ===================== POLES TAMPILAN & ANIMASI ===================== */
+
+/* sampul: foto perlahan memperbesar (hanya di HP; di desktop foto sampul dibatasi 480px) */
+@media(max-width:699px) and (prefers-reduced-motion:no-preference){
+  #cover .bg{transform-origin:50% 35%;animation:kenburns 18s ease-in-out infinite alternate}
+}
+@keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.1)}}
+
+/* nama muncul huruf demi huruf */
+.wd{display:inline-block;white-space:nowrap}
+.ch{display:inline-block}
+@media(prefers-reduced-motion:no-preference){
+  .names.rv .ch{opacity:0;transform:translateY(.45em);transition:opacity .7s ease,transform .8s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--i)*45ms + .25s)}
+  .names.rv.in .ch{opacity:1;transform:none}
+  .cover-in h1 .ch{opacity:0;animation:chIn .9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i)*55ms + .3s)}
+}
+@keyframes chIn{from{opacity:0;transform:translateY(.45em)}to{opacity:1;transform:none}}
+
+/* hitung mundur: angka berputar saat berganti */
+.cd div{perspective:300px}
+.cd strong.flip{animation:flip .55s cubic-bezier(.2,.8,.2,1)}
+@keyframes flip{from{transform:rotateX(-90deg);opacity:0}to{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.cd strong.flip{animation:none}}
+
+/* foto galeri: kotak berkilau lembut lalu foto muncul perlahan saat sudah dimuat */
+#gal .bg{position:relative}
+#gal .bg::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(110deg,#efdde1 30%,#fbf3f5 50%,#efdde1 70%);background-size:200% 100%;
+  animation:shimmer 1.4s linear infinite;transition:opacity .8s ease}
+#gal .bg.ready::before{opacity:0;animation:none}
+@keyframes shimmer{to{background-position:-200% 0}}
+@media(prefers-reduced-motion:reduce){#gal .bg::before{animation:none}}
+
+/* kontrol galeri: titik, penghitung, panah (desktop), petunjuk geser */
+.gal-wrap{position:relative}
+.gal-ui{text-align:center;margin-top:4px}
+.gal-dots{display:flex;justify-content:center;flex-wrap:wrap;gap:0}
+.gal-dots button{position:relative;width:20px;height:28px;padding:0;border:0;background:none;cursor:pointer;transition:width .35s}
+.gal-dots button::before{content:"";position:absolute;left:6px;right:6px;top:10px;height:8px;border-radius:99px;background:#dcbcc4;transition:background .35s}
+.gal-dots button.on{width:38px}
+.gal-dots button.on::before{background:var(--wine)}
+.gal-dots button:focus-visible,.gal-arrow:focus-visible{outline:2px solid var(--wine);outline-offset:3px}
+.gal-count{margin-top:12px;font:400 .85rem Poppins,sans-serif;letter-spacing:.16em;color:var(--wine)}
+.gal-hint{margin-top:10px;min-height:1.5em;font:300 .8rem Poppins,sans-serif;color:#8a7378;opacity:0;transition:opacity .6s}
+.gal-hint.on{opacity:1}
+.gal-hint::before,.gal-hint::after{display:inline-block;color:var(--wine);animation:nudge 1.4s ease-in-out infinite}
+.gal-hint::before{content:"\2190\00a0\00a0"}
+.gal-hint::after{content:"\00a0\00a0\2192";animation-direction:reverse}
+@keyframes nudge{50%{transform:translateX(5px)}}
+@media(prefers-reduced-motion:reduce){.gal-hint::before,.gal-hint::after{animation:none}}
+.gal-arrow{display:none}
+@media(hover:hover) and (min-width:700px){
+  .gal-arrow{display:grid;place-items:center;position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;padding:0;border-radius:50%;
+    border:1px solid var(--wine);background:#fff;color:var(--wine);box-shadow:0 4px 16px rgba(0,0,0,.18);cursor:pointer;z-index:3;transition:background .2s,color .2s}
+  .gal-arrow:hover{background:var(--wine);color:#fff}
+  .gal-arrow.prev{left:calc(50% - 152px)}
+  .gal-arrow.next{left:calc(50% + 108px)}
+}
+
+/* penutup: foto bulat, tanggal, tagar */
+.foot-photo{width:132px;height:132px;border-radius:50%;margin:0 auto 26px;background-position:50% 16%;
+  border:3px solid rgba(255,255,255,.85);box-shadow:0 0 0 7px rgba(255,255,255,.12)}
+.foot-date{margin-top:16px;font-size:.95rem;letter-spacing:.05em;opacity:.92}
+.foot-tag{margin-top:18px;font:400 .85rem Poppins,sans-serif;letter-spacing:.18em;opacity:.85}
+
+/* cerita kami (tampil setelah kata hidden dihapus di index.html) */
+.story p{margin-bottom:14px}
