@@ -52,13 +52,19 @@ footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 
 /* ===================== POLES TAMPILAN & ANIMASI ===================== */
 
+/* sampul: foto perlahan memperbesar (hanya di HP; di desktop foto sampul dibatasi 480px) */
+@media(max-width:699px) and (prefers-reduced-motion:no-preference){
+  #cover .bg{transform-origin:50% 35%;animation:kenburns 18s ease-in-out infinite alternate}
+}
+@keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.1)}}
+
 /* nama muncul huruf demi huruf */
 .wd{display:inline-block;white-space:nowrap}
 .ch{display:inline-block}
 @media(prefers-reduced-motion:no-preference){
   .names.rv .ch{opacity:0;transform:translateY(.45em);transition:opacity .7s ease,transform .8s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--i)*45ms + .25s)}
   .names.rv.in .ch{opacity:1;transform:none}
-  .env-title h1 .ch{opacity:0;animation:chIn .9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i)*55ms + .3s)}
+  .cover-in h1 .ch{opacity:0;animation:chIn .9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i)*55ms + .3s)}
 }
 @keyframes chIn{from{opacity:0;transform:translateY(.45em)}to{opacity:1;transform:none}}
 
@@ -111,76 +117,3 @@ footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 
 /* cerita kami (tampil setelah kata hidden dihapus di index.html) */
 .story p{margin-bottom:14px}
-
-
-/* ===================== AMPLOP + SEGEL LILIN (sampul) ===================== */
-#cover{background:radial-gradient(120% 80% at 50% 28%,#8f0b2c 0%,#6a0722 46%,#3a0211 100%)}
-#cover::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1.6px);background-size:22px 22px;pointer-events:none}
-#cover::after{display:none}
-#cover .scene{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:clamp(12px,2.6vh,26px);padding:clamp(14px,3vh,28px) 20px calc(18px + env(safe-area-inset-bottom,0px));text-align:center}
-.env-title{transition:opacity .6s ease .9s}
-.env-title h1{font:400 clamp(2.4rem,9vw,3.4rem)/1.1 Italiana,serif;margin-top:-6px;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.5)}
-
-/* ukuran amplop: --W lebar, --H tinggi (cocok untuk layar pendek juga) */
-.envelope{--W:max(250px,min(86vw,420px,calc((100dvh - 430px)*1.45)));--H:calc(var(--W)*.68);
-  position:relative;width:var(--W);height:var(--H);perspective:1100px;margin-top:calc(var(--H)*.16)}
-.env-back{position:absolute;inset:0;border-radius:6px;background:#d8c2be;box-shadow:0 22px 44px rgba(0,0,0,.5),0 4px 10px rgba(0,0,0,.3);z-index:0}
-.env-letter{position:absolute;left:6%;top:4%;width:88%;height:92%;z-index:2;background:#fffaf8;border-radius:4px;padding:5px;box-shadow:0 2px 12px rgba(0,0,0,.28)}
-.letter-photo{width:100%;height:100%;border-radius:2px;background:#d9c3bf no-repeat 47% 20%/cover}
-.env-front{position:absolute;inset:0;width:100%;height:100%;z-index:3;border-radius:6px;overflow:hidden;display:block}
-.env-flap{position:absolute;left:0;top:0;width:100%;height:58.8%;z-index:4;transform-origin:50% 0;transform-style:preserve-3d}
-.env-flap svg{position:absolute;inset:0;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:visible}
-.flap-in{transform:rotateX(180deg)}
-
-/* segel */
-.seal{--S:calc(var(--H)*.46);position:absolute;left:50%;top:58.8%;width:var(--S);height:var(--S);margin:0;padding:0;border:0;background:none;
-  transform:translate(-50%,-50%);z-index:6;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.seal:focus-visible{outline:2px solid #fff;outline-offset:6px;border-radius:50%}
-.seal-body{position:absolute;inset:0;display:block}
-.seal svg{position:absolute;inset:0;width:100%;height:100%;display:block;filter:drop-shadow(0 4px 5px rgba(0,0,0,.5))}
-.seal-whole{animation:sealPulse 2.4s ease-in-out infinite}
-.seal-half{position:absolute;inset:0;visibility:hidden}
-.seal-half.l{clip-path:polygon(0 0,50% 0,44% 12%,54% 26%,45% 40%,55% 55%,46% 70%,54% 84%,48% 100%,0 100%)}
-.seal-half.r{clip-path:polygon(50% 0,100% 0,100% 100%,48% 100%,54% 84%,46% 70%,55% 55%,45% 40%,54% 26%,44% 12%)}
-.seal-crack{opacity:0;filter:none!important;pointer-events:none}
-.seal::after{content:"";position:absolute;inset:-4%;border-radius:50%;border:2px solid rgba(255,214,222,.65);animation:sealRipple 2.4s ease-out infinite;pointer-events:none}
-.crumb{position:absolute;left:50%;top:50%;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);border-radius:42% 58% 50% 50%;
-  background:radial-gradient(circle at 35% 30%,#d44660,#7a1429);opacity:0;pointer-events:none}
-.env-hint{font:400 .74rem Poppins,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.8);animation:hintPulse 2.4s ease-in-out infinite;transition:opacity .4s}
-.env-to{color:#fff;transition:opacity .45s}
-.env-to h2{font-size:1.6rem;margin:4px 0 10px;word-break:break-word}
-.env-to .small{margin-bottom:0;opacity:.85}
-
-@keyframes sealPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-@keyframes sealRipple{0%{transform:scale(.92);opacity:.9}100%{transform:scale(1.35);opacity:0}}
-@keyframes hintPulse{0%,100%{opacity:.45}50%{opacity:1}}
-
-/* ---- saat segel diketuk ---- */
-#cover.opening .seal{pointer-events:none}
-#cover.opening .seal::after{display:none}
-#cover.opening .seal-whole{visibility:hidden;animation:none}
-#cover.opening .seal-half{visibility:visible}
-#cover.opening .seal-body{animation:sealShake .24s ease-in-out}
-#cover.opening .seal-crack{animation:crackShow .5s ease-out forwards}
-#cover.opening .seal-half.l{animation:halfL 1s .2s cubic-bezier(.4,0,.6,1) forwards}
-#cover.opening .seal-half.r{animation:halfR 1s .2s cubic-bezier(.4,0,.6,1) forwards}
-#cover.opening .crumb{animation:crumbFly .85s .2s cubic-bezier(.2,.7,.4,1) forwards}
-#cover.opening .env-flap{animation:flapOpen .75s .55s cubic-bezier(.45,.05,.3,1) forwards}
-#cover.opening .env-letter{animation:letterUp .95s 1.05s cubic-bezier(.22,.9,.3,1) forwards}
-#cover.opening .env-hint,#cover.opening .env-to{opacity:0}
-#cover.opening .env-title{opacity:0}
-
-@keyframes sealShake{0%,100%{transform:none}20%{transform:translateX(-3px) rotate(-2deg)}45%{transform:translateX(3px) rotate(2deg)}70%{transform:translateX(-2px) rotate(-1deg)}}
-@keyframes crackShow{0%{opacity:0}20%{opacity:1}70%{opacity:1}100%{opacity:0}}
-@keyframes halfL{0%{transform:none;opacity:1}30%{transform:translate(-9px,4px) rotate(-6deg);opacity:1}100%{transform:translate(-52px,var(--H)) rotate(-42deg);opacity:0}}
-@keyframes halfR{0%{transform:none;opacity:1}30%{transform:translate(9px,4px) rotate(6deg);opacity:1}100%{transform:translate(52px,var(--H)) rotate(46deg);opacity:0}}
-@keyframes crumbFly{0%{opacity:1;transform:translate(0,0) scale(1)}60%{opacity:1}100%{opacity:0;transform:translate(var(--dx),calc(var(--dy) + 120px)) scale(.4) rotate(120deg)}}
-@keyframes flapOpen{0%{transform:rotateX(0);z-index:4}49%{z-index:4}50%{z-index:1}100%{transform:rotateX(-180deg);z-index:1}}
-@keyframes letterUp{0%{transform:none}100%{transform:translateY(calc(var(--H)*-.64)) scale(1.03)}}
-
-@media(prefers-reduced-motion:reduce){
-  .seal-whole,.env-hint,.seal::after{animation:none}
-  #cover.opening *{animation:none!important;transition:none!important}
-  #cover.opening .seal{opacity:0}
-}
