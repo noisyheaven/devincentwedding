@@ -32,3 +32,14 @@ footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 /* LENGKUNG FOTO MEMPELAI: ubah angka 260px untuk lebih besar / lebih kecil */
 .arch{width:min(260px,72vw);margin-bottom:22px}
 .person h3{margin-top:4px}
+
+/* GALERI SLIDER: otomatis berjalan, bisa digeser kiri/kanan, foto di tengah paling jelas */
+#gal{--w:min(62vw,260px);display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  width:min(100vw,640px);max-width:none!important;margin:0;position:relative;left:50%;transform:translateX(-50%);
+  padding:8px calc((min(100vw,640px) - var(--w))/2) 18px;scroll-padding:0 calc((min(100vw,640px) - var(--w))/2)}
+#gal::-webkit-scrollbar{display:none}
+#gal.dragging{scroll-snap-type:none;cursor:grabbing;user-select:none}
+#gal .bg{flex:0 0 var(--w);aspect-ratio:3/4;scroll-snap-align:center;border-radius:16px;
+  opacity:.6!important;transform:scale(.88)!important;transition:transform .45s,opacity .45s!important;transition-delay:0s!important}
+#gal .bg.act{opacity:1!important;transform:scale(1)!important}
+@media(prefers-reduced-motion:reduce){#gal .bg{transition:none!important}}
