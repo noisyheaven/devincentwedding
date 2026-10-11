@@ -1,0 +1,104 @@
+// TAMBAHAN: menu bawah, kelopak bunga, salin rekening, bagikan, file .ics
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  var calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function toast(t) {
+    var e = $("toast"); e.textContent = t; e.classList.add("on");
+    clearTimeout(toast.t); toast.t = setTimeout(function () { e.classList.remove("on"); }, 2200);
+  }
+
+  // saat undangan dibuka
+  $("open").addEventListener("click", function () {
+    $("nav").hidden = false;
+    if (!calm) setTimeout(petals, 500);
+  });
+
+  // menu "Hadiah" hanya muncul kalau bagian Tanda Kasih sudah diaktifkan (tidak lagi hidden)
+  if (!$("hadiah").hidden) $("navGift").hidden = false;
+
+  // menu bawah: geser halus + tandai bagian yang sedang dilihat
+  var links = [].slice.call(document.querySelectorAll("#nav a")), map = {};
+  links.forEach(function (l) {
+    var s = $(l.getAttribute("href").slice(1)); if (s) map[s.id] = l;
+    l.addEventListener("click", function (e) {
+      e.preventDefault(); if (s) s.scrollIntoView({ behavior: calm ? "auto" : "smooth" });
+    });
+  });
+  var so = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (e.isIntersecting) { links.forEach(function (l) { l.classList.remove("on"); }); map[e.target.id].classList.add("on"); }
+    });
+  }, { rootMargin: "-45% 0px -50% 0px" });
+  Object.keys(map).forEach(function (k) { so.observe($(k)); });
+
+  // salin nomor rekening
+  document.querySelectorAll("[data-copy]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var t = b.dataset.copy;
+      function ok() { toast("Nomor rekening disalin"); }
+      function fb() {
+        var a = document.createElement("textarea"); a.value = t; a.style.cssText = "position:fixed;opacity:0";
+        document.body.appendChild(a); a.select();
+        try { document.execCommand("copy"); ok(); } catch (e) { toast("Salin manual: " + t); }
+        a.remove();
+      }
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(ok, fb); else fb();
+    });
+  });
+
+  // bagikan (tanpa nama tamu di link)
+  $("shareBtn").addEventListener("click", function () {
+    var u = location.origin + location.pathname, t = "Undangan Pernikahan Vincensius & Devi";
+    if (navigator.share) navigator.share({ title: t, text: t, url: u }).catch(function () {});
+    else window.open("https://wa.me/?text=" + encodeURIComponent(t + "\n" + u), "_blank");
+  });
+
+  // file kalender .ics (dua acara, pengingat 1 hari sebelumnya)
+  var EV = [
+    { n: "Pemberkatan Pernikahan Vincensius & Devi", s: "2026-12-26T11:00:00+07:00", e: "2026-12-26T13:00:00+07:00", l: "Gereja Katolik Santo Hieronimus, Tanjung Hulu, Pontianak" },
+    { n: "Resepsi Pernikahan Vincensius & Devi", s: "2026-12-26T17:00:00+07:00", e: "2026-12-26T20:00:00+07:00", l: "G-Hotel, Jl. Jendral Urip No. 73, Pontianak" }
+  ];
+  function z(d) { return new Date(d).toISOString().replace(/[-:]|\.\d{3}/g, ""); }
+  function esc(s) { return s.replace(/[,;]/g, "\\$&"); }
+  $("ics").addEventListener("click", function (e) {
+    e.preventDefault();
+    var L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Devincent Wedding//ID", "CALSCALE:GREGORIAN"];
+    EV.forEach(function (v, i) {
+      L.push("BEGIN:VEVENT", "UID:devincent-" + i + "@devincentwedding", "DTSTAMP:" + z(Date.now()),
+        "DTSTART:" + z(v.s), "DTEND:" + z(v.e), "SUMMARY:" + esc(v.n), "LOCATION:" + esc(v.l),
+        "BEGIN:VALARM", "TRIGGER:-P1D", "ACTION:DISPLAY", "DESCRIPTION:Besok: " + esc(v.n), "END:VALARM", "END:VEVENT");
+    });
+    L.push("END:VCALENDAR");
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([L.join("\r\n")], { type: "text/calendar;charset=utf-8" }));
+    a.download = "undangan-vincensius-devi.ics"; document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  // kelopak bunga: satu momen ~16 detik saat undangan dibuka, lalu berhenti
+  function petals() {
+    var c = $("petals"), x = c.getContext("2d"), W, H, P = [], r = window.devicePixelRatio || 1,
+        n = matchMedia("(max-width:700px)").matches ? 16 : 28, t0 = performance.now(), dur = 16000,
+        col = ["#b5586b", "#d98a9a", "#f0c4cc"];
+    function size() { W = c.width = innerWidth * r; H = c.height = innerHeight * r; }
+    size(); addEventListener("resize", size);
+    function mk(i) {
+      return { x: Math.random() * W, y: -Math.random() * H, s: (6 + Math.random() * 8) * r, v: (.6 + Math.random() * .9) * r,
+               d: Math.random() * 6.28, w: .5 + Math.random(), a: Math.random() * 6.28, k: .02 + Math.random() * .03, c: col[i % 3] };
+    }
+    for (var i = 0; i < n; i++) P.push(mk(i));
+    (function f(t) {
+      var age = t - t0, fade = age < dur - 3000 ? 1 : Math.max(0, (dur - age) / 3000);
+      x.clearRect(0, 0, W, H);
+      if (age > dur) return;
+      x.globalAlpha = .75 * fade;
+      P.forEach(function (p) {
+        p.y += p.v; p.d += .02; p.x += Math.sin(p.d) * p.w * r; p.a += p.k;
+        if (p.y > H + 20 && fade > .5) { p.y = -20; p.x = Math.random() * W; }
+        x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.fillStyle = p.c;
+        x.beginPath(); x.ellipse(0, 0, p.s, p.s * .55, 0, 0, 6.283); x.fill(); x.restore();
+      });
+      requestAnimationFrame(f);
+    })(t0);
+  }
+})();
