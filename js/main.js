@@ -2,6 +2,8 @@
 // Wedding date/time for the countdown & calendar button (WIB = +07:00)
 var WEDDING = new Date("2026-12-26T11:00:00+07:00");
 var EVENT_TITLE = "Pernikahan Vincensius & Devi";
+var EVENT_PLACE = "Gereja Katolik Santo Hieronimus, Tanjung Hulu, Pontianak";
+var EVENT_NOTE  = "Pemberkatan 11.00 WIB. Resepsi 17.00-20.00 WIB di G Hotel, Jl. Jendral Urip No. 73, Pontianak.";
 
 // Photos in the "images" folder (a burgundy placeholder shows until the file exists)
 var PHOTOS = {
@@ -72,7 +74,8 @@ function tick(){
 tick();setInterval(tick,1000);
 function g(d){return d.toISOString().replace(/[-:]|\.\d{3}/g,"")}
 $("cal").href="https://www.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(EVENT_TITLE)+
-  "&dates="+g(WEDDING)+"/"+g(new Date(+WEDDING+2*3600e3));
+  "&dates="+g(WEDDING)+"/"+g(new Date(+WEDDING+2*3600e3))+
+  "&location="+encodeURIComponent(EVENT_PLACE)+"&details="+encodeURIComponent(EVENT_NOTE);
 
 // scroll reveal
 var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}})},{threshold:.15});
