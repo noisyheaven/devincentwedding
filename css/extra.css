@@ -117,3 +117,26 @@ footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 
 /* cerita kami (tampil setelah kata hidden dihapus di index.html) */
 .story p{margin-bottom:14px}
+
+
+/* ===== KARTU REKENING (Tanda Kasih): tampilan kartu bank + tombol salin ===== */
+.bank{margin:0 auto 26px;max-width:340px}
+#hadiah>p+.bank{margin-top:30px}
+.bank-card{position:relative;overflow:hidden;container-type:inline-size;aspect-ratio:1.586/1;border-radius:18px;padding:6.5% 7%;text-align:left;color:#fff;
+  background:radial-gradient(120% 90% at 85% 0%,rgba(255,255,255,.22) 0,transparent 55%),linear-gradient(135deg,#2a8bdb 0%,#0060af 50%,#00346b 100%);
+  box-shadow:0 14px 28px rgba(0,52,107,.38),0 2px 6px rgba(0,0,0,.2),inset 0 0 0 1px rgba(255,255,255,.16)}
+.bank-card.alt{background:radial-gradient(120% 90% at 85% 0%,rgba(255,255,255,.16) 0,transparent 55%),linear-gradient(135deg,#5b4147 0%,#3a2a2e 55%,#1f1417 100%)}
+.bank-card::before,.bank-card::after{content:"";position:absolute;border-radius:50%;pointer-events:none;border:1px solid rgba(255,255,255,.12)}
+.bank-card::before{width:78%;aspect-ratio:1;right:-30%;top:-52%}
+.bank-card::after{width:62%;aspect-ratio:1;right:-18%;bottom:-62%;background:rgba(255,255,255,.05)}
+.bk-name{position:absolute;left:7%;top:8%;font:600 6.4cqw/1 Poppins,sans-serif;letter-spacing:.1em;text-transform:uppercase;text-shadow:0 1px 4px rgba(0,0,0,.35)}
+.bk-wave{position:absolute;right:7%;top:7%;width:9cqw;height:9cqw;opacity:.85}
+.bk-chip{position:absolute;left:7%;top:31%;width:15cqw;height:11.5cqw;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+.bk-num{position:absolute;left:7%;right:7%;top:55%;margin:0;font:500 7.4cqw/1 "Courier New",ui-monospace,monospace;letter-spacing:.09em;text-shadow:0 1px 3px rgba(0,0,0,.45);white-space:nowrap}
+.bk-holder{position:absolute;left:7%;right:7%;bottom:8%;margin:0;font:500 4.4cqw/1.25 Poppins,sans-serif;letter-spacing:.07em;text-transform:uppercase;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+.bk-holder small{display:block;font:300 3cqw/1.2 Poppins,sans-serif;letter-spacing:.14em;opacity:.75;margin-bottom:3px}
+.bk-copy{margin-top:16px;min-width:150px}
+@media(prefers-reduced-motion:no-preference){
+  .bank.in .bank-card::before{animation:cardShine 1.6s .5s ease-out 1}
+  @keyframes cardShine{0%{opacity:.25}50%{opacity:1;border-color:rgba(255,255,255,.4)}100%{opacity:.25}}
+}
