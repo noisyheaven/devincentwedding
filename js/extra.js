@@ -32,11 +32,58 @@
   }, { rootMargin: "-45% 0px -50% 0px" });
   Object.keys(map).forEach(function (k) { so.observe($(k)); });
 
+  // confetti: meletus dari tombol "Salin Norek" lalu jatuh ke bawah (~2 detik)
+  function burst(el) {
+    if (calm) return;
+    var r = el.getBoundingClientRect(), ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+    var cv = document.createElement("canvas"); cv.setAttribute("aria-hidden", "true");
+    cv.style.cssText = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:90";
+    document.body.appendChild(cv);
+    var d = window.devicePixelRatio || 1, W = innerWidth, H = innerHeight, x = cv.getContext("2d");
+    cv.width = W * d; cv.height = H * d; x.scale(d, d);
+    var col = ["#800020", "#d4506a", "#f3dc9a", "#d9b45c", "#2a8bdb", "#ffffff", "#f0869a"], P = [], N = 90, t0 = performance.now(), dur = 2300;
+    for (var i = 0; i < N; i++) {
+      var a = -Math.PI / 2 + (Math.random() - .5) * 2.3, v = 6 + Math.random() * 9;
+      P.push({ x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, w: 6 + Math.random() * 6, h: 3 + Math.random() * 4,
+               r: Math.random() * 6.28, vr: (Math.random() - .5) * .35, c: col[i % col.length], round: Math.random() < .25, sw: Math.random() * 6.28 });
+    }
+    (function f(t) {
+      var age = t - t0; x.clearRect(0, 0, W, H);
+      if (age > dur) { cv.remove(); return; }
+      x.globalAlpha = age < dur - 600 ? 1 : Math.max(0, (dur - age) / 600);
+      P.forEach(function (p) {
+        p.vx *= .985; p.vy = p.vy * .985 + .34; p.x += p.vx + Math.sin(p.sw += .12) * .6; p.y += p.vy; p.r += p.vr;
+        x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c;
+        if (p.round) { x.beginPath(); x.arc(0, 0, p.h * .8, 0, 6.283); x.fill(); } else x.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        x.restore();
+      });
+      requestAnimationFrame(f);
+    })(t0);
+  }
+
+  // buka aplikasi mobile banking (khusus Android, hanya jika tombol punya data-app="nama.paket.aplikasi")
+  //   myBCA = com.bca.mybca.omni.android   |   BCA mobile = com.bca
+  var APP_DELAY = 900;   // jeda (milidetik) supaya confetti terlihat dulu. Kalau aplikasi tidak terbuka, coba ubah jadi 0
+  function openBankApp(btn) {
+    var pkg = btn.dataset.app;
+    if (!pkg || !/Android/i.test(navigator.userAgent)) return false;
+    setTimeout(function () {
+      var a = document.createElement("a");
+      a.href = "intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=" + pkg + ";end";
+      a.style.display = "none"; document.body.appendChild(a); a.click(); a.remove();
+    }, APP_DELAY);
+    return true;
+  }
+
   // salin nomor rekening
   document.querySelectorAll("[data-copy]").forEach(function (b) {
     b.addEventListener("click", function () {
       var t = b.dataset.copy;
-      function ok() { toast("Nomor rekening disalin"); }
+      function ok() {
+        toast(openBankApp(b) ? "Nomor disalin. Membuka aplikasi bank..." : "Nomor rekening disalin"); burst(b);
+        var o = b.dataset.label || (b.dataset.label = b.textContent);
+        b.textContent = "Tersalin \u2713"; clearTimeout(b.t); b.t = setTimeout(function () { b.textContent = o; }, 2000);
+      }
       function fb() {
         var a = document.createElement("textarea"); a.value = t; a.style.cssText = "position:fixed;opacity:0";
         document.body.appendChild(a); a.select();
