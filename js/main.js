@@ -78,8 +78,6 @@ $("cal").href="https://www.google.com/calendar/render?action=TEMPLATE&text="+enc
 var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}})},{threshold:.15});
 document.querySelectorAll(".rv,.zi").forEach(function(el){io.observe(el)});
 
-// ---- wishes / ucapan & doa ----
-if(to)$("wName").value=to;
 function ago(t){var s=(Date.now()-t)/1000;
   if(s<60)return "baru saja"; if(s<3600)return Math.floor(s/60)+" menit lalu";
   if(s<86400)return Math.floor(s/3600)+" jam lalu"; return Math.floor(s/86400)+" hari lalu"}
