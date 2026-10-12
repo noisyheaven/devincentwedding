@@ -102,15 +102,26 @@
   </section>
 
   <!-- AMPLOP DIGITAL: isi data rekening, lalu hapus kata  hidden  pada baris <section> di bawah -->
-  <section class="center" id="hadiah" hidden>
+  <section class="center" id="hadiah">
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <defs><linearGradient id="chipG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3dc9a"/><stop offset=".5" stop-color="#d9b45c"/><stop offset="1" stop-color="#b98a35"/></linearGradient></defs>
+      <symbol id="chipArt" viewBox="0 0 48 36">
+        <rect x="1" y="1" width="46" height="34" rx="6" fill="url(#chipG)" stroke="#8d6a22" stroke-width="1"/>
+        <path d="M1 12h14v12H1M47 12H33v12h14M15 12c0-6 4-11 9-11s9 5 9 11M15 24c0 6 4 11 9 11s9-5 9-11M24 1v34" fill="none" stroke="#8d6a22" stroke-width="1" opacity=".75"/>
+      </symbol>
+    </svg>
     <h2 class="title rv">Tanda Kasih</h2>
     <p class="rv">Doa restu Anda sudah menjadi hadiah terbaik bagi kami. Jika ingin memberikan tanda kasih, dapat melalui:</p>
-    <div class="card rv"><h3>BCA</h3>
-      <p class="acc">0000000000</p><p>a.n. Nama Pemilik Rekening</p>
-      <button class="pill dark" type="button" data-copy="0000000000">Salin nomor rekening</button></div>
-    <div class="card rv"><h3>Rekening / e-wallet lain</h3>
-      <p class="acc">0000000000</p><p>a.n. Nama Pemilik Rekening</p>
-      <button class="pill dark" type="button" data-copy="0000000000">Salin nomor rekening</button></div>
+    <div class="bank rv">
+      <div class="bank-card ">
+        <span class="bk-name">BCA</span>
+        <svg class="bk-wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 7.5c2.2 2.6 2.2 6.4 0 9"/><path d="M12 5c3.4 4 3.4 10 0 14"/><path d="M16 2.5c4.6 5.4 4.6 13.6 0 19"/></svg>
+        <svg class="bk-chip" aria-hidden="true"><use href="#chipArt"/></svg>
+        <p class="bk-num">734 535 0918</p>
+        <p class="bk-holder"><small>Atas nama</small>Devi Christin</p>
+      </div>
+      <button class="pill dark bk-copy" type="button" data-copy="734 535 0918" data-app="com.bca.mybca.omni.android" aria-label="Salin nomor rekening BCA">Salin Norek</button>
+    </div>
   </section>
 
   <!-- WISHES -->
