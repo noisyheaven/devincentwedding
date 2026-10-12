@@ -61,26 +61,12 @@
     })(t0);
   }
 
-  // buka aplikasi mobile banking (khusus Android, hanya jika tombol punya data-app="nama.paket.aplikasi")
-  //   myBCA = com.bca.mybca.omni.android   |   BCA mobile = com.bca
-  var APP_DELAY = 900;   // jeda (milidetik) supaya confetti terlihat dulu. Kalau aplikasi tidak terbuka, coba ubah jadi 0
-  function openBankApp(btn) {
-    var pkg = btn.dataset.app;
-    if (!pkg || !/Android/i.test(navigator.userAgent)) return false;
-    setTimeout(function () {
-      var a = document.createElement("a");
-      a.href = "intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=" + pkg + ";end";
-      a.style.display = "none"; document.body.appendChild(a); a.click(); a.remove();
-    }, APP_DELAY);
-    return true;
-  }
-
   // salin nomor rekening
   document.querySelectorAll("[data-copy]").forEach(function (b) {
     b.addEventListener("click", function () {
       var t = b.dataset.copy;
       function ok() {
-        toast(openBankApp(b) ? "Nomor disalin. Membuka aplikasi bank..." : "Nomor rekening disalin"); burst(b);
+        toast("Nomor rekening disalin"); burst(b);
         var o = b.dataset.label || (b.dataset.label = b.textContent);
         b.textContent = "Tersalin \u2713"; clearTimeout(b.t); b.t = setTimeout(function () { b.textContent = o; }, 2000);
       }
