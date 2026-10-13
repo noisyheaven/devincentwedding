@@ -11,7 +11,7 @@
 <meta name="color-scheme" content="light">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23800020'/%3E%3Ctext x='32' y='41' font-family='Georgia,serif' font-size='25' fill='%23f3dc9a' text-anchor='middle'%3EV%26D%3C/text%3E%3C/svg%3E">
 <link rel="preload" as="image" href="images/cover.jpg" fetchpriority="high">
-<noscript><style>body.locked{overflow:auto;height:auto}#cover{display:none}</style></noscript>
+<noscript><style>body.locked{overflow:auto;height:auto}#cover,#intro{display:none}</style></noscript>
 
 <!-- LINK PREVIEW (WhatsApp, Telegram, Facebook, iMessage) -->
 <meta property="og:type" content="website">
@@ -19,14 +19,14 @@
 <meta property="og:title" content="Pernikahan Vincensius &amp; Devi">
 <meta property="og:description" content="Sabtu, 26 Desember 2026. Kami mengundang Anda untuk hadir dan memberikan doa restu.">
 <meta property="og:url" content="https://devincentwedding.noisyheaven.workers.dev/">
-<meta property="og:image" content="https://devincentwedding.noisyheaven.workers.dev/images/preview.jpg?v=2">
-<meta property="og:image:secure_url" content="https://devincentwedding.noisyheaven.workers.dev/images/preview.jpg?v=2">
+<meta property="og:image" content="https://devincentwedding.noisyheaven.workers.dev/images/preview-amplop.jpg?v=4">
+<meta property="og:image:secure_url" content="https://devincentwedding.noisyheaven.workers.dev/images/preview-amplop.jpg?v=4">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="1000">
-<meta property="og:image:height" content="525">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Pernikahan Vincensius &amp; Devi">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://devincentwedding.noisyheaven.workers.dev/images/preview.jpg?v=2">
+<meta name="twitter:image" content="https://devincentwedding.noisyheaven.workers.dev/images/preview-amplop.jpg?v=4">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,6 +36,19 @@
 <link rel="stylesheet" href="css/extra.css?v=3">
 </head>
 <body class="locked">
+
+<!-- INTRO AMPLOP: otomatis tampil saat link dibuka, lalu masuk ke sampul "Buka Undangan" -->
+<div id="intro" aria-hidden="true">
+  <div class="ev">
+    <div class="ev-back"></div>
+    <div class="ev-card"><b>V<i>&amp;</i>D</b><span>Vincensius &amp; Devi</span><small>26 . 12 . 2026</small></div>
+    <svg class="ev-pocket" viewBox="0 0 300 200" preserveAspectRatio="none"><polygon points="0,0 150,112 0,200" fill="#a3153a"/><polygon points="300,0 150,112 300,200" fill="#a3153a"/><polygon points="0,200 150,78 300,200" fill="#b81f47"/></svg>
+    <div class="ev-flap"></div>
+    <div class="ev-seal">V<i>&amp;</i>D</div>
+  </div>
+  <p class="ev-to" id="evTo"></p>
+  <button type="button" class="ev-skip" id="evSkip">Lewati</button>
+</div>
 
 <!-- COVER -->
 <div id="cover">
@@ -176,5 +189,6 @@
 <script src="js/photos.js?v=3"></script>
 <script src="js/lightbox.js?v=3"></script>
 <script src="js/extra.js?v=3"></script>
+<script src="js/envelope.js?v=1"></script>
 </body>
 </html>
