@@ -165,3 +165,30 @@ body.locked{position:fixed}
   .hero-txt{max-width:480px}
   .hero .wave{display:none}
 }
+
+/* ===== KETERBACAAN: tulisan lebih tebal & kontras lebih tinggi ===== */
+body{font-weight:400;color:#2b1a1f}
+.center p,.center blockquote,.card p{font-weight:400}
+.small,.wish .small{font-weight:400;color:#5c4a4f}
+.gal-hint{font-weight:400;color:#5c4a4f}
+.wi small,.wb-bub small{color:#6b5a5f}
+.wish label,.wish .lbl,#wishForm p{color:#5c4a4f}
+cite{font-weight:500}
+.wb-lbl{opacity:1;font-weight:500}
+.wb-stats span{background:rgba(0,0,0,.18);border-color:rgba(255,255,255,.5);font-weight:500}
+.bk-holder small{opacity:1;font-weight:500;font-size:max(3.4cqw,10px)}
+#nav a{color:#fff;font-weight:500}
+#nav a.on{color:var(--wine-d)}
+footer.wine p,.foot-date{opacity:1;font-weight:400}
+.foot-tag{opacity:1;font-weight:500}
+
+/* cover & hero: gradasi gelap lebih awal + bayangan teks supaya tulisan putih jelas di atas foto */
+#cover::after{background:linear-gradient(180deg,rgba(0,0,0,.45) 0,transparent 26%,rgba(60,0,20,.25) 48%,rgba(85,0,26,.82) 74%,var(--wine-d) 100%)!important}
+#cover .cover-in{text-shadow:0 1px 10px rgba(0,0,0,.55)}
+#cover .to p,#cover .to em{font-weight:400}
+.hero-top::before{background:linear-gradient(180deg,rgba(0,0,0,.4) 0,transparent 26%,rgba(60,0,20,.2) 42%,rgba(85,0,26,.82) 66%,var(--wine-d) 100%)!important}
+.hero-txt{text-shadow:0 1px 12px rgba(0,0,0,.6)}
+.hero .eyebrow,.hero .date{font-weight:500}
+.hero .cd div{background:rgba(60,0,20,.5);border-color:rgba(255,255,255,.5)}
+.hero .cd span{font-weight:500}
+.hero .pill.dark{background:rgba(60,0,20,.55);border-color:#fff;font-weight:500}
