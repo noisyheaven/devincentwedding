@@ -147,3 +147,21 @@ body{overflow-x:hidden;max-width:100%;position:relative}
 @supports (overflow:clip){html,body{overflow-x:clip}}
 main,section,footer{overflow-x:clip}
 body.locked{position:fixed}
+
+/* ===== HERO: foto cover potret besar memenuhi layar, nama + tanggal + countdown di atas foto ===== */
+.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;background:#1b0a10;color:#fff}
+.hero-top{position:absolute;inset:0;max-width:none;margin:0}
+.hero-img{height:100%;min-height:0;aspect-ratio:auto!important;background-position:48% 50%}
+.hero-top::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.3) 0,transparent 28%,transparent 38%,rgba(85,0,26,.72) 74%,var(--wine-d) 100%)}
+.hero .wave{z-index:2}
+.hero-txt{position:relative;z-index:3;width:100%;margin:0 auto;padding:0 20px 84px;text-shadow:0 2px 14px rgba(0,0,0,.45)}
+.hero .eyebrow,.hero .date{color:#fff}
+.hero .names{color:#fff;font-size:clamp(2.2rem,10vw,3.4rem);white-space:nowrap}
+.hero .pill.dark{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.7);color:#fff;text-shadow:none;backdrop-filter:blur(4px)}
+.hero .cd{margin-top:22px;gap:8px}
+.hero .cd div{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(6px);width:62px;text-shadow:none}
+@media(min-width:700px){
+  .hero-top{left:50%;right:auto;width:480px;margin-left:-240px}
+  .hero-txt{max-width:480px}
+  .hero .wave{display:none}
+}
