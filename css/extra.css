@@ -229,7 +229,8 @@ footer.wine p,.foot-date{opacity:1;font-weight:400}
 /* foto keluar dari amplop lalu membesar memenuhi layar (menyatu dengan sampul) */
 #intro .ev,#intro .ev-to{transition:opacity .6s ease}
 #intro.grow .ev,#intro.grow .ev-to,#intro.grow .ev-skip{opacity:0}
-#evCard.fly{position:fixed!important;z-index:20;margin:0;transform-origin:50% 50%}
+#evCard.fly{position:fixed!important;z-index:20;margin:0;transform-origin:50% 50%;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+#intro.rise #evCard.fly{transform:none}
 
 /* performa: sampul diberi layer sendiri supaya bergeser mulus */
 #cover{will-change:transform}
