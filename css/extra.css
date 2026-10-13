@@ -140,3 +140,10 @@ footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
   .bank.in .bank-card::before{animation:cardShine 1.6s .5s ease-out 1}
   @keyframes cardShine{0%{opacity:.25}50%{opacity:1;border-color:rgba(255,255,255,.4)}100%{opacity:.25}}
 }
+
+/* FIX: halaman tidak boleh bergeser ke samping (elemen .rv.l/.rv.r yang belum muncul melebar keluar layar) */
+html{overflow-x:hidden;max-width:100%}
+body{overflow-x:hidden;max-width:100%;position:relative}
+@supports (overflow:clip){html,body{overflow-x:clip}}
+main,section,footer{overflow-x:clip}
+body.locked{position:fixed}
