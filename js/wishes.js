@@ -37,7 +37,7 @@ var PER_PAGE = 5;            // <-- wishes per page. Change this number if you l
     '.wb-num{font:600 3.6rem/1.05 "Playfair Display",serif;margin-top:4px;text-shadow:0 2px 14px rgba(0,0,0,.25)}' +
     '.wb-lbl{font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;opacity:.92;margin-top:4px}' +
     '.wb-stats{display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap}' +
-    '.wb-stats span{background:rgba(255,255,255,.18);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:5px 14px;font-size:.8rem}' +
+    '.wb-stats span{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:5px 14px;font-size:.8rem}' +
     '.wb-spark{position:absolute!important;color:rgba(255,226,170,.9);animation:wbTw 2.6s ease-in-out infinite;pointer-events:none}' +
     '.wb-list{display:grid;gap:14px;margin-top:20px}' +
     '.wb-card{display:flex;gap:11px;align-items:flex-start;animation:wbIn .55s cubic-bezier(.2,.8,.2,1) both}' +
