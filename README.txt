@@ -23,7 +23,7 @@ CHANGE PHOTOS
 
 CHANGE DETAILS
   Date/countdown : js/main.js  (WEDDING = ...)
-  Date text shown: index.html, search "12 June 2027" (hero + two event cards)
+  Date text shown: index.html, search "26 December 2026" (hero + two event cards)
   Venues         : index.html, search "Church name" and "Venue name"
   Map buttons    : replace the Google Maps link in each "View map" button with your
                    venue's link (open the venue in Google Maps > Share > Copy link)
