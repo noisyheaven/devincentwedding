@@ -14,20 +14,21 @@
     if (done) return; done = true;
     timers.forEach(clearTimeout);
     intro.classList.add("leave");
+    var a = document.getElementById("bgm");           // mulai siapkan musik sekarang, bukan saat tombol ditekan
+    if (a && a.preload !== "auto") { a.preload = "auto"; try { a.load(); } catch (x) {} }
     setTimeout(function () { if (intro.parentNode) intro.parentNode.removeChild(intro); }, 1000);
   }
-  function grow() {                                   // foto membesar dari posisi kartu sampai layar penuh
+  function grow() {                                   // foto membesar (hanya transform = ringan di HP) sampai memenuhi layar
     if (!card) return;
-    var r = card.getBoundingClientRect();
+    var r = card.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
     intro.appendChild(card);                          // keluar dari amplop supaya tidak terpotong
     card.classList.add("fly");
-    card.style.cssText = "left:" + r.left + "px;top:" + r.top + "px;width:" + r.width + "px;height:" + r.height +
-      "px;border-width:5px;border-radius:6px;transition:none";
+    card.style.cssText = "left:" + r.left + "px;top:" + r.top + "px;width:" + r.width + "px;height:" + r.height + "px;transition:none";
     void card.offsetWidth;                            // paksa browser membaca posisi awal
-    card.style.transition = "left .95s cubic-bezier(.6,0,.2,1),top .95s cubic-bezier(.6,0,.2,1),width .95s cubic-bezier(.6,0,.2,1),height .95s cubic-bezier(.6,0,.2,1),border-width .95s,border-radius .95s";
-    card.style.left = "0px"; card.style.top = "0px";
-    card.style.width = window.innerWidth + "px"; card.style.height = window.innerHeight + "px";
-    card.style.borderWidth = "0px"; card.style.borderRadius = "0px";
+    var s = Math.max(vw / r.width, vh / r.height),
+        dx = vw / 2 - (r.left + r.width / 2), dy = vh / 2 - (r.top + r.height / 2);
+    card.style.transition = "transform .95s cubic-bezier(.6,0,.2,1)";
+    card.style.transform = "translate3d(" + dx + "px," + dy + "px,0) scale(" + s + ")";
     intro.classList.add("grow");
   }
   document.getElementById("evSkip").addEventListener("click", finish);
