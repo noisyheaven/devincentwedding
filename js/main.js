@@ -26,10 +26,17 @@ var $=function(id){return document.getElementById(id)};
 // photos as backgrounds, only if the file exists
 function withImage(el,src){var i=new Image();i.onload=function(){el.style.backgroundImage="url('"+src+"')";el.classList.add("ready")};i.src=src}
 document.querySelectorAll("[data-photo]").forEach(function(el){withImage(el,PHOTOS[el.dataset.photo])});
+// galeri: kotaknya dibuat sekarang, tetapi foto baru dimuat ketika bagian Galeri mendekati layar (hemat data & memori HP)
+var galTiles=[];
 PHOTOS.gallery.forEach(function(src,i){
   var d=document.createElement("div");d.className="bg rv";d.style.transitionDelay=((i%3)*120)+"ms";
-  $("gal").appendChild(d);withImage(d,src);
+  $("gal").appendChild(d);galTiles.push([d,src]);
 });
+function loadGallery(){var t=galTiles;galTiles=[];t.forEach(function(x,i){setTimeout(function(){withImage(x[0],x[1])},i*120)})}
+if("IntersectionObserver" in window){
+  var gio=new IntersectionObserver(function(es){if(es[0].isIntersecting){gio.disconnect();loadGallery()}},{rootMargin:"900px 0px"});
+  gio.observe($("galeri"));
+}else loadGallery();
 
 // guest name from the link:  index.html?to=Budi+Santoso
 var to=new URLSearchParams(location.search).get("to");
