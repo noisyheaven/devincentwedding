@@ -11,7 +11,7 @@
   // saat undangan dibuka
   $("open").addEventListener("click", function () {
     $("nav").hidden = false;
-    if (!calm) setTimeout(petals, 500);
+    if (!calm) setTimeout(petals, 1600);   // setelah sampul selesai bergeser, supaya animasi buka tidak patah-patah
   });
 
   // menu "Hadiah" hanya muncul kalau bagian Tanda Kasih sudah diaktifkan (tidak lagi hidden)
@@ -111,8 +111,8 @@
 
   // kelopak bunga: satu momen ~16 detik saat undangan dibuka, lalu berhenti
   function petals() {
-    var c = $("petals"), x = c.getContext("2d"), W, H, P = [], r = window.devicePixelRatio || 1,
-        n = matchMedia("(max-width:700px)").matches ? 16 : 28, t0 = performance.now(), dur = 16000,
+    var c = $("petals"), x = c.getContext("2d"), W, H, P = [], r = Math.min(window.devicePixelRatio || 1, 1.5),
+        n = matchMedia("(max-width:700px)").matches ? 12 : 24, t0 = performance.now(), dur = 16000,
         col = ["#b5586b", "#d98a9a", "#f0c4cc"];
     function size() { W = c.width = innerWidth * r; H = c.height = innerHeight * r; }
     size(); addEventListener("resize", size);
