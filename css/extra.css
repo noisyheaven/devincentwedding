@@ -235,3 +235,6 @@ footer.wine p,.foot-date{opacity:1;font-weight:400}
 /* performa: sampul diberi layer sendiri supaya bergeser mulus */
 #cover{will-change:transform}
 #cover.gone{will-change:auto}
+
+/* foto sampul dipusatkan (50%) supaya foto yang keluar dari amplop membesar tepat di tempat, tanpa bergeser kiri-kanan */
+#cover .bg{background-position:50% 50%}
