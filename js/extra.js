@@ -289,3 +289,17 @@
     });
   } catch (e) { /* hiasan saja: jangan sampai merusak bagian lain */ }
 })();
+
+
+// TANDA KASIH: klik "Kirim Hadiah" baru muncul nomor rekening
+(function () {
+  var b = document.getElementById("giftBtn"), p = document.getElementById("giftPanel");
+  if (!b || !p) return;
+  b.addEventListener("click", function () {
+    var open = !p.classList.contains("open");
+    p.classList.toggle("open", open); b.classList.toggle("on", open);
+    b.setAttribute("aria-expanded", open); p.setAttribute("aria-hidden", !open);
+    b.querySelector("span").textContent = open ? "Tutup" : "Kirim Hadiah";
+    if (open) setTimeout(function () { p.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }); }, 380);
+  });
+})();
