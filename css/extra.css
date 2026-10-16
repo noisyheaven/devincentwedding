@@ -235,3 +235,47 @@ footer.wine p,.foot-date{opacity:1;font-weight:400}
 /* performa: sampul diberi layer sendiri supaya bergeser mulus */
 #cover{will-change:transform}
 #cover.gone{will-change:auto}
+
+
+/* ===== SNAP: tiap bagian memenuhi 1 layar, 1x geser = 1 halaman ===== */
+html{scroll-snap-type:y mandatory}
+html.nosnap{scroll-snap-type:none}                       /* auto-scroll jalan: snap dimatikan sementara */
+main>section:not([hidden]),main>footer{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding-top:44px;padding-bottom:96px;scroll-snap-align:start;scroll-snap-stop:always}
+main>.hero{padding:0;justify-content:flex-end}
+main>section:not([hidden])>*,main>footer>*{width:100%}
+main>section.tint>*{max-width:520px}
+.title{margin-bottom:22px}
+#mempelai:not([hidden]){display:grid;grid-template-columns:1fr auto 1fr;align-content:center;align-items:start;gap:0 8px;max-width:none;padding-left:16px;padding-right:16px}
+#mempelai>*{width:auto;max-width:none!important}
+#mempelai .arch{width:min(168px,41vw);margin-bottom:12px}
+#mempelai .amp{align-self:center;margin:0!important;font-size:2.2rem;padding-top:0}
+#mempelai .person h3{font-size:1.15rem;line-height:1.25}
+#mempelai .person p{font-size:.82rem;line-height:1.5}
+@media(min-width:700px){#mempelai .arch{width:190px}#mempelai .person h3{font-size:1.5rem}#mempelai .person p{font-size:.95rem}#mempelai:not([hidden]){max-width:760px;margin:0 auto;width:100%}}
+#acara .card{padding:22px 18px;margin-bottom:14px}
+#acara .card h3{font-size:1.3rem;margin-bottom:6px}
+#acara .card .pill{margin-top:12px}
+#galeri .title{margin-bottom:14px}
+
+/* ===== TANDA KASIH: klik dulu, baru info rekening muncul ===== */
+.gift{margin:26px auto 0;max-width:340px}
+.gift-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 30px;border-radius:999px;border:1.5px solid var(--wine);background:#fff;color:var(--wine);
+  font:500 1rem Poppins,sans-serif;cursor:pointer;box-shadow:0 6px 18px rgba(128,0,32,.12);transition:background .25s,color .25s,transform .2s}
+.gift-btn:active{transform:scale(.97)}
+.gift-btn.on{background:var(--wine);color:#fff}
+.gift-btn svg{transition:transform .5s}.gift-btn.on svg{transform:rotate(-12deg) scale(1.1)}
+.gift-btn:focus-visible{outline:2px solid var(--wine);outline-offset:3px}
+.gift-panel{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .55s cubic-bezier(.2,.8,.2,1),visibility 0s .55s}
+.gift-panel.open{grid-template-rows:1fr;visibility:visible;transition:grid-template-rows .55s cubic-bezier(.2,.8,.2,1),visibility 0s}
+.gift-in{overflow:hidden;min-height:0}
+.gift-card{margin-top:18px;padding:22px 20px 20px;border:1px solid #ead3d8;border-radius:16px;background:var(--tint);opacity:0;transform:translateY(-10px);transition:opacity .45s .12s,transform .45s .12s}
+.gift-panel.open .gift-card{opacity:1;transform:none}
+.g-bank{display:block;font:500 .78rem Poppins,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#5c4a4f}
+.g-num{font:600 1.7rem/1.2 "Playfair Display",serif;color:var(--wine);letter-spacing:.06em;margin:8px 0 2px}
+.g-name{font-size:.95rem;color:#2b1a1f;margin:0}
+.gift-card .bk-copy{margin-top:16px}
+@media(prefers-reduced-motion:reduce){.gift-panel,.gift-card{transition:none}}
+
+/* mouse/PC: snap lembut (roda mouse kecil tidak "tertarik balik"); layar sentuh: snap penuh 1 geser = 1 halaman */
+@media (pointer:fine){html{scroll-snap-type:y proximity}main>section,main>footer{scroll-snap-stop:normal}}
