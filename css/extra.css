@@ -242,7 +242,7 @@ html{scroll-snap-type:y mandatory}
 html.nosnap{scroll-snap-type:none}                       /* auto-scroll jalan: snap dimatikan sementara */
 main>section:not([hidden]),main>footer{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;
   padding-top:44px;padding-bottom:96px;scroll-snap-align:start;scroll-snap-stop:always}
-main>.hero{padding:0;justify-content:flex-end}
+main>section.hero:not([hidden]){padding:0;justify-content:flex-end}   /* harus lebih kuat dari aturan 'main>section:not([hidden])' di atas, kalau tidak teks hero ikut di tengah dan menutupi wajah */
 main>section:not([hidden])>*,main>footer>*{width:100%}
 main>section.tint>*{max-width:520px}
 .title{margin-bottom:22px}
@@ -273,24 +273,4 @@ main>section.tint>*{max-width:520px}
 .gift-card{margin-top:18px;padding:22px 20px 20px;border:1px solid #ead3d8;border-radius:16px;background:var(--tint);opacity:0;transform:translateY(-10px);transition:opacity .45s .12s,transform .45s .12s}
 .gift-panel.open .gift-card{opacity:1;transform:none}
 .g-bank{display:block;font:500 .78rem Poppins,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#5c4a4f}
-.g-row{display:flex;align-items:center;justify-content:center;gap:12px;margin:10px 0 2px;flex-wrap:nowrap}
-.g-logo{height:26px;width:auto;max-width:84px;object-fit:contain;display:block}
-.g-bca{font:700 1.05rem Arial,Helvetica,sans-serif;color:#2b1a1f;letter-spacing:.02em}
-.g-num{margin:0;font:600 1.45rem/1.2 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:.05em;color:#1d1d1f;white-space:nowrap}
-.g-name{font-size:.95rem;color:#2b1a1f;margin:0}
-.gift-card .bk-copy{margin-top:16px}
-@media(prefers-reduced-motion:reduce){.gift-panel,.gift-card{transition:none}}
-
-/* mouse/PC: snap lembut (roda mouse kecil tidak "tertarik balik"); layar sentuh: snap penuh 1 geser = 1 halaman */
-@media (pointer:fine){html{scroll-snap-type:y proximity}main>section,main>footer{scroll-snap-stop:normal}}
-
-/* ===== DESKTOP / PC: foto sampul & hero memenuhi seluruh layar (tidak lagi dibatasi 480px) ===== */
-@media(min-width:700px){
-  #cover{background:#1b0a10}
-  #cover .bg,#cover::after{left:0;right:0;width:100%;margin-left:0}
-  #cover .bg{background-position:48% 30%}           /* 30% = kepala tetap terlihat saat foto landscape dipotong atas-bawah */
-  #cover .cover-in{max-width:560px}
-  .hero-top{left:0;right:0;width:100%;max-width:none;margin:0}
-  .hero-img{background-position:48% 30%}
-  .hero-txt{max-width:560px}
-}
+.g-row{display:flex;align-it
