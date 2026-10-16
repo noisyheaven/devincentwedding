@@ -61,7 +61,7 @@ function step(t){
   if(acc>=1){window.scrollBy(0,Math.floor(acc));acc-=Math.floor(acc)}
   requestAnimationFrame(step);
 }
-function setAuto(on){auto=on;$("scrollBtn").classList.toggle("on",on);if(on){last=performance.now();requestAnimationFrame(step)}}
+function setAuto(on){auto=on;document.documentElement.classList.toggle("nosnap",on);$("scrollBtn").classList.toggle("on",on);if(on){last=performance.now();requestAnimationFrame(step)}}
 $("scrollBtn").addEventListener("click",function(){setAuto(!auto)});
 ["wheel","touchstart"].forEach(function(e){addEventListener(e,function(){if(auto)setAuto(false)},{passive:true})});
 
