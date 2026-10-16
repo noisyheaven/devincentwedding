@@ -283,3 +283,14 @@ main>section.tint>*{max-width:520px}
 
 /* mouse/PC: snap lembut (roda mouse kecil tidak "tertarik balik"); layar sentuh: snap penuh 1 geser = 1 halaman */
 @media (pointer:fine){html{scroll-snap-type:y proximity}main>section,main>footer{scroll-snap-stop:normal}}
+
+/* ===== DESKTOP / PC: foto sampul & hero memenuhi seluruh layar (tidak lagi dibatasi 480px) ===== */
+@media(min-width:700px){
+  #cover{background:#1b0a10}
+  #cover .bg,#cover::after{left:0;right:0;width:100%;margin-left:0}
+  #cover .bg{background-position:48% 30%}           /* 30% = kepala tetap terlihat saat foto landscape dipotong atas-bawah */
+  #cover .cover-in{max-width:560px}
+  .hero-top{left:0;right:0;width:100%;max-width:none;margin:0}
+  .hero-img{background-position:48% 30%}
+  .hero-txt{max-width:560px}
+}
