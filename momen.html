@@ -166,8 +166,10 @@ body.tv #tv{display:block}
     var b = document.createElement("button");
     b.className = "ph" + (isNew ? " new" : "");
     b.type = "button";
-    b.innerHTML = '<span class="im"><img alt="Foto oleh ' + esc(x.n) + '" loading="lazy" decoding="async"></span><span class="by">' + esc(x.n) + "</span>";
+    b.innerHTML = '<span class="im"><img loading="lazy" decoding="async"></span><span class="by"></span>';
     var img = b.querySelector("img");
+    img.alt = "Foto oleh " + x.n;                    // lewat DOM (bukan HTML string) supaya nama tamu tidak bisa menyisipkan kode
+    b.querySelector(".by").textContent = x.n;
     img.addEventListener("load", function () {   // ikuti rasio asli foto
       if (img.naturalWidth && img.naturalHeight) b.querySelector(".im").style.setProperty("--ar", img.naturalWidth + "/" + img.naturalHeight);
     });
