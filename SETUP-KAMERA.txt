@@ -12,9 +12,11 @@ FILE YANG TERLIBAT
 LANGKAH 1 - BACKEND (Google Apps Script)
   1. Buat Google Sheet baru, nama bebas (mis. "Disposable Camera").
   2. Menu Extensions > Apps Script. Hapus isinya, tempel seluruh isi apps-script/camera.gs.
-  2b. Di bagian atas camera.gs, isi ACCESS_CODE dengan kode rahasia (huruf/angka, mis. "dv26xk7").
-      Kode yang SAMA dimasukkan di tools/qr-kamera.html (langkah 3). Tanpa kode yang benar, kiriman
-      foto ditolak. Jangan menulis kode ini di GitHub: cukup di Apps Script dan di QR.
+  2b. Buka Project Settings > Script Properties, tambahkan:
+        Property: ACCESS_CODE
+        Value: kode rahasia BARU (huruf/angka, _ atau -; maksimal 40 karakter).
+      Gunakan kode baru karena kode lama pernah berada di source code publik. Jangan commit kode ini
+      ke GitHub. Kode yang sama dimasukkan saat membuat QR (langkah 3).
   3. Pilih fungsi "setup" lalu klik Run. Izinkan akses (Drive & Sheets) saat diminta.
      Ini membuat folder "Disposable Camera - Vincensius & Devi" di Google Drive Anda
      dan sheet "Foto".
@@ -30,10 +32,10 @@ LANGKAH 2 - HUBUNGKAN KE WEBSITE
 
 LANGKAH 3 - QR
   Buka https://(alamat-website-anda)/tools/qr-kamera.html, isi kolom "Kode acara" (sama dengan
-  ACCESS_CODE), lalu klik Cetak atau Unduh PNG. Kode tertanam di dalam QR kamera (alamat
+  Script Property ACCESS_CODE), lalu klik Cetak atau Unduh PNG. Kode tertanam di dalam QR kamera (alamat
   kamera.html?k=KODE) dan tidak tercetak di kartu. QR "Momen Tamu" tidak memakai kode.
   Tamu yang membuka kamera.html tanpa kode melihat layar "Scan ulang QR-nya ya".
-  Setiap kali ACCESS_CODE diubah di camera.gs: Deploy > Manage deployments > Edit > New version,
+  Setiap kali Script Property ACCESS_CODE diubah: Deploy > Manage deployments > Edit > New version,
   lalu cetak ulang QR.
   Taruh di meja tamu / pintu masuk.
 
