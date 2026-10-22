@@ -2,6 +2,10 @@
 // Menerima foto dari kamera.html, menyimpannya di Google Drive, dan memberi daftar foto ke momen.html.
 // Cara pasang: lihat SETUP-KAMERA.txt
 
+// KODE ACARA: isi dengan kode rahasia (huruf/angka, mis. "dv26xk7"). Kode yang sama dipasang di QR lewat
+// tools/qr-kamera.html. Kiriman tanpa kode yang benar ditolak. Kosongkan ("") untuk mematikan pengecekan.
+var ACCESS_CODE = "";
+
 var MAX_PER_GUEST = 10;          // jatah foto per perangkat/tamu
 var MAX_TOTAL = 3000;            // batas total foto (pengaman)
 var MAX_B64 = 2600000;           // batas ukuran satu foto (karakter base64, kira-kira 1,9 MB)
@@ -43,6 +47,14 @@ function json_(o) {
   return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
 }
 function safe_(s) { return /^[=+\-@\t\r]/.test(s) ? "'" + s : s; }
+
+function codeOk_(k) {
+  return !ACCESS_CODE || String(k || "") === ACCESS_CODE;
+}
+// byte-byte pertama file JPEG selalu FF D8 FF (di Apps Script nilai byte bertanda: -1, -40, -1)
+function isJpeg_(b) {
+  return b && b.length > 1000 && b[0] === -1 && b[1] === -40 && b[2] === -1;
+}
 
 function count_(sh, tk) {
   var n = sh.getLastRow();
@@ -89,7 +101,8 @@ function list_() {
 
 function doGet(e) {
   var tk = e && e.parameter && e.parameter.tk;
-  if (tk) {   // cek sisa jatah satu tamu
+  if (tk) {   // cek sisa jatah satu tamu (sekaligus memastikan kode acara benar)
+    if (!codeOk_(e.parameter.k)) return json_({ ok: false, err: "denied" });
     return json_({ ok: true, used: count_(sheet_(), String(tk)), max: MAX_PER_GUEST });
   }
   var cache = CacheService.getScriptCache();
@@ -107,6 +120,7 @@ function doPost(e) {
     var pid = String(d.pid || "");
     var name = String(d.n || "").trim().slice(0, 40);
     var img = String(d.img || "");
+    if (!codeOk_(d.k)) return json_({ ok: false, err: "denied" });   // sebelum rate limit, supaya orang luar tidak bisa menghabiskan jatah kirim
     if (!/^[a-z0-9]{12,40}$/i.test(tk) || !/^[a-z0-9_-]{6,40}$/i.test(pid) || !name) return json_({ ok: false, err: "bad" });
     if (img.indexOf("data:image/jpeg;base64,") !== 0) return json_({ ok: false, err: "bad" });
     if (img.length > MAX_B64) return json_({ ok: false, err: "big" });
@@ -123,12 +137,17 @@ function doPost(e) {
 
     // simpan file di luar lock (lambat), lalu catat di dalam lock
     var bytes = Utilities.base64Decode(img.substring(img.indexOf(",") + 1));
+    if (!isJpeg_(bytes)) return json_({ ok: false, err: "bad" });
     var stamp = Utilities.formatDate(new Date(), "Asia/Jakarta", "yyyyMMdd-HHmmss");
     var file = folder_().createFile(Utilities.newBlob(bytes, "image/jpeg", stamp + "_" + tk.slice(0, 6) + "_" + pid + ".jpg"));
 
     var lock = LockService.getScriptLock();
     if (!lock.tryLock(20000)) { file.setTrashed(true); return json_({ ok: false, err: "busy" }); }
     try {
+      if (hasPhoto_(sh, pid)) {   // kiriman ulang yang tiba bersamaan dengan kiriman pertama: buang salinannya
+        file.setTrashed(true);
+        return json_({ ok: true, dup: true, used: count_(sh, tk), max: MAX_PER_GUEST });
+      }
       var used = count_(sh, tk);
       if (used >= MAX_PER_GUEST) { file.setTrashed(true); return json_({ ok: false, err: "limit", used: used, max: MAX_PER_GUEST }); }
       sh.appendRow([new Date(), safe_(name), tk, file.getId(), pid, true]);
