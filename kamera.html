@@ -24,10 +24,6 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .pill:disabled{opacity:.5}
 
 /* layar sambutan / info */
-#scanView{background:var(--bg)}
-#scanVideo{width:100%;max-height:48vh;object-fit:cover;border-radius:14px;background:#000;margin:12px 0}
-.scan-frame{border:2px solid rgba(255,255,255,.8);border-radius:18px;max-width:320px;margin:0 auto;padding:10px}
-
 .card{margin:auto;width:min(440px,100%);padding:calc(28px + env(safe-area-inset-top,0px)) 24px calc(28px + env(safe-area-inset-bottom,0px));text-align:center;overflow-y:auto;max-height:100%}
 .bgwine{background:radial-gradient(circle at 20% 10%,#a8334f 0,transparent 55%),linear-gradient(170deg,var(--wine),var(--wine-d) 70%,#2a0310)}
 .kick{letter-spacing:.3em;text-transform:uppercase;font-size:.72rem;opacity:.85}
@@ -85,21 +81,6 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
 </style>
 </head>
 <body>
-
-<!-- 0. SCAN QR: kamera hanya aktif melalui QR acara -->
-<section id="scanView" class="scr bgwine" hidden>
-  <div class="card">
-    <p class="kick">Pernikahan</p>
-    <h1>Vincensius &amp; Devi</h1>
-    <h2>Scan QR Disposable Camera</h2>
-    <p class="lead" id="scanMsg">Arahkan kamera ke QR code resmi yang tersedia di lokasi acara untuk mengaktifkan disposable camera.</p>
-    <div class="scan-frame"><video id="scanVideo" autoplay playsinline muted></video></div>
-    <p class="err" id="scanErr"></p>
-    <p class="note">Jika pemindai tidak tersedia, buka aplikasi kamera HP dan scan QR code acara yang tercetak.</p>
-    <button class="pill ghost" id="scanRetry" hidden>Coba scan lagi</button>
-    <div class="stack" style="margin-top:12px"><a class="pill ghost" href="momen.html">Kembali ke Momen Tamu</a></div>
-  </div>
-</section>
 
 <!-- 1. SAMBUTAN -->
 <section id="welcome" class="scr bgwine" hidden>
@@ -198,9 +179,9 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   }
 
   /* ---------- identitas & jatah foto ---------- */
-  // QR-only: kode hanya diterima dari URL hasil scan, tidak dipulihkan dari localStorage.
   var kq = (new URLSearchParams(location.search).get("k") || "").trim().slice(0, 40);
-  var code = /^[A-Za-z0-9_-]{1,40}$/.test(kq) ? kq : "";
+  if (kq) LS.set("dc_k", kq);
+  var code = kq || LS.get("dc_k") || "";
 
   var token = LS.get("dc_tk");
   if (!/^[a-z0-9]{12,40}$/i.test(token || "")) { token = rand(20); LS.set("dc_tk", token); }
@@ -210,7 +191,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   function left() { return Math.max(0, MAX - used); }
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
 
-  var screens = ["scanView", "welcome", "cam", "fb", "done", "denied"], current = "";
+  var screens = ["welcome", "cam", "fb", "done", "denied"], current = "";
   function show(id) { current = id; screens.forEach(function (s) { $(s).hidden = s !== id; }); }
 
   function statText() {
@@ -228,30 +209,10 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     ["fbStat", "doneStat"].forEach(function (id) { $(id).textContent = s.t; $(id).hidden = !s.t; });
   }
 
-  function requestCodeAgain(message) {
-    stopStream();
-    code = "";
-    $("codeField").hidden = true;
-    $("eventCode").value = "";
-    $("codeErr").textContent = "";
-    $("go").disabled = false;
-    $("scanMsg").textContent = message || "QR tidak valid. Scan QR resmi dari acara untuk mengaktifkan kamera.";
-    show("scanView");
-    startScanner();
-  }
-
-  function verifyCode(value) {
-    if (!URL_) return Promise.resolve({ ok: true, local: true });
-    return fetch(URL_ + "?tk=" + encodeURIComponent(token) + "&k=" + encodeURIComponent(value))
-      .then(function (r) { if (!r.ok) throw new Error("network"); return r.json(); });
-  }
-
   function syncQuota() {   // jatah di server menang bila lebih besar (mis. foto diambil dari perangkat lain / data dihapus)
     if (!URL_ || !code) return;
-    var checking = code;
-    verifyCode(checking).then(function (j) {
-      if (checking !== code) return;
-      if (j && j.err === "denied") { requestCodeAgain("Kode acara salah. Silakan masukkan kode yang benar."); return; }
+    fetch(URL_ + "?tk=" + encodeURIComponent(token) + "&k=" + encodeURIComponent(code)).then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.err === "denied") { stopStream(); show("denied"); return; }
       if (!j || !j.ok) return;
       if (j.max) MAX = j.max;
       if (j.used > used) { used = j.used; LS.set("dc_used", String(used)); }
@@ -470,96 +431,24 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     if (document.hidden) stopStream(); else if (!stream) startCamera();
   });
 
-  /* ---------- scanner QR: hanya URL QR resmi yang dapat mengaktifkan kamera ---------- */
-  var scanStream = null, scanTimer = 0, scanning = false;
-  function stopScanner() {
-    scanning = false;
-    clearTimeout(scanTimer);
-    if (scanStream) { scanStream.getTracks().forEach(function (t) { t.stop(); }); scanStream = null; }
-    $("scanVideo").srcObject = null;
-  }
-  function startScanner() {
-    stopScanner();
-    $("scanRetry").hidden = true;
-    $("scanErr").textContent = "";
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !("BarcodeDetector" in window)) {
-      $("scanMsg").textContent = "Pemindai QR otomatis tidak didukung browser ini. Buka aplikasi kamera HP, scan QR resmi di lokasi acara, lalu ketuk tautan yang muncul.";
-      $("scanRetry").hidden = false;
-      return;
-    }
-    var detector;
-    try { detector = new BarcodeDetector({ formats: ["qr_code"] }); }
-    catch (e) {
-      $("scanMsg").textContent = "Pemindai QR tidak tersedia di browser ini. Gunakan aplikasi kamera HP untuk scan QR resmi di lokasi acara.";
-      $("scanRetry").hidden = false; return;
-    }
-    navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: "environment" } } })
-      .then(function (s) {
-        if (current !== "scanView") { s.getTracks().forEach(function (t) { t.stop(); }); return; }
-        scanStream = s; scanning = true; $("scanVideo").srcObject = s;
-        return $("scanVideo").play().then(function () { scanFrame(detector); });
-      }).catch(function () {
-        $("scanMsg").textContent = "Kamera belum bisa dibuka. Izinkan akses kamera atau gunakan aplikasi kamera HP untuk scan QR resmi.";
-        $("scanRetry").hidden = false;
-      });
-  }
-  function scanFrame(detector) {
-    if (!scanning || current !== "scanView") return;
-    var video = $("scanVideo");
-    if (video.readyState >= 2) detector.detect(video).then(function (codes) {
-      if (!scanning) return;
-      for (var i = 0; i < codes.length; i++) {
-        var raw = codes[i].rawValue || "";
-        try {
-          var u = new URL(raw);
-          var target = new URL("kamera.html", location.href);
-          var qrCode = u.searchParams.get("k") || "";
-          if (u.origin === target.origin && u.pathname.replace(/\\/$/, "") === target.pathname.replace(/\\/$/, "") && /^[A-Za-z0-9_-]{1,40}$/.test(qrCode)) {
-            stopScanner(); location.replace(u.href); return;
-          }
-        } catch (e) {}
-      }
-      scanTimer = setTimeout(function () { scanFrame(detector); }, 250);
-    }).catch(function () { scanTimer = setTimeout(function () { scanFrame(detector); }, 500); });
-    else scanTimer = setTimeout(function () { scanFrame(detector); }, 250);
-  }
-  $("scanRetry").addEventListener("click", startScanner);
-
-  /* ---------- mulai: verifikasi kode sebelum meminta izin kamera ---------- */
-  $("codeField").hidden = true;
+  /* ---------- mulai ---------- */
+  $("codeField").hidden = !!code;
   $("go").addEventListener("click", function () {
     var n = $("nm").value.trim().slice(0, 40);
     if (!n) { $("nmErr").textContent = "Tulis namamu dulu ya."; $("nm").focus(); return; }
-    var entered = code || $("eventCode").value.trim();
-    if (!/^[A-Za-z0-9_-]{1,40}$/.test(entered)) {
-      $("codeField").hidden = false;
-      $("codeErr").textContent = "Masukkan kode acara yang benar (1–40 karakter).";
-      $("eventCode").focus(); return;
-    }
-
-    $("go").disabled = true;
-    $("codeErr").textContent = URL_ ? "Memeriksa kode acara..." : "";
-    verifyCode(entered).then(function (j) {
-      if (!j || !j.ok) {
-        requestCodeAgain(j && j.err === "denied"
-          ? "Kode acara salah. Silakan masukkan kode yang benar."
-          : "Kode belum bisa diverifikasi. Periksa koneksi internet lalu coba lagi.");
-        return;
+    if (!code) {
+      var entered = $("eventCode").value.trim();
+      if (!/^[A-Za-z0-9_-]{1,40}$/.test(entered)) {
+        $("codeErr").textContent = "Masukkan kode acara yang benar (1–40 karakter).";
+        $("eventCode").focus(); return;
       }
       code = entered;
-      $("codeField").hidden = true;
+      LS.set("dc_k", code);
       $("codeErr").textContent = "";
-      name = n; LS.set("dc_name", name);
-      if (j.max) MAX = j.max;
-      if (typeof j.used === "number" && j.used > used) {
-        used = j.used; LS.set("dc_used", String(used));
-      }
-      $("go").disabled = false;
-      render();
-      startCamera();
-    }).catch(function () {
-      requestCodeAgain("Kode belum bisa diverifikasi. Periksa koneksi internet lalu coba lagi.");
-    });
+    }
+    name = n; LS.set("dc_name", name);
+    startCamera();
+    syncQuota();
   });
   $("nm").addEventListener("keydown", function (e) { if (e.key === "Enter") $("go").click(); });
   $("nm").addEventListener("input", function () { $("nmErr").textContent = ""; });
@@ -569,16 +458,10 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   if (qn) $("nm").value = qn; else if (name) $("nm").value = name;
 
   render(); pump();
-  if (!code) {
-    show("scanView");
-    startScanner();
-  } else if (left() <= 0 && used > 0) {
-    show("done");
-  } else {
-    // Selalu tampilkan sambutan; pengguna harus menekan Mulai dan kode diverifikasi server dahulu.
-    show("welcome");
-    syncQuota();
-  }
+  if (code) syncQuota();
+  if (left() <= 0 && used > 0) show("done");
+  else if (name) startCamera();
+  else show("welcome");
 })();
 </script>
 </body>
