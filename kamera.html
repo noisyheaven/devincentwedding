@@ -94,6 +94,9 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
       <li><i>🙈</i><span>Seperti kamera disposable sungguhan: hasil <b>tidak ditampilkan</b> dan <b>tidak bisa dihapus</b> setelah dipotret.</span></li>
       <li><i>📤</i><span>Foto otomatis terkirim ke galeri tamu yang bisa dilihat <b>semua orang</b> yang punya link-nya.</span></li>
     </ul>
+    <label class="field" id="codeField" hidden><span>Kode acara (minta kepada panitia)</span>
+      <input id="eventCode" type="password" maxlength="40" placeholder="Masukkan kode acara" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+    <p class="err" id="codeErr"></p>
     <label class="field"><span>Namamu (akan tampil di foto)</span>
       <input id="nm" type="text" maxlength="40" placeholder="mis. Budi Santoso" autocomplete="name" enterkeyhint="go"></label>
     <p class="err" id="nmErr"></p>
@@ -152,8 +155,8 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
 <section id="denied" class="scr bgwine" hidden>
   <div class="card">
     <div class="big">🔒</div>
-    <h2>Scan ulang QR-nya ya</h2>
-    <p class="lead">Link kamera ini belum lengkap. Silakan pindai ulang kartu QR Disposable Camera di lokasi acara, atau tanyakan panitia.</p>
+    <h2>Kode acara belum benar</h2>
+    <p class="lead">Periksa kode acara yang dimasukkan, atau tanyakan kepada panitia. Kamu juga bisa kembali ke Momen Tamu.</p>
     <div class="stack"><a class="pill ghost" href="momen.html">Lihat Momen Tamu</a></div>
   </div>
 </section>
@@ -207,7 +210,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   }
 
   function syncQuota() {   // jatah di server menang bila lebih besar (mis. foto diambil dari perangkat lain / data dihapus)
-    if (!URL_) return;
+    if (!URL_ || !code) return;
     fetch(URL_ + "?tk=" + encodeURIComponent(token) + "&k=" + encodeURIComponent(code)).then(function (r) { return r.json(); }).then(function (j) {
       if (j && j.err === "denied") { stopStream(); show("denied"); return; }
       if (!j || !j.ok) return;
@@ -429,10 +432,23 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   });
 
   /* ---------- mulai ---------- */
+  $("codeField").hidden = !!code;
   $("go").addEventListener("click", function () {
     var n = $("nm").value.trim().slice(0, 40);
     if (!n) { $("nmErr").textContent = "Tulis namamu dulu ya."; $("nm").focus(); return; }
-    name = n; LS.set("dc_name", name); startCamera();
+    if (!code) {
+      var entered = $("eventCode").value.trim();
+      if (!/^[A-Za-z0-9_-]{1,40}$/.test(entered)) {
+        $("codeErr").textContent = "Masukkan kode acara yang benar (1–40 karakter).";
+        $("eventCode").focus(); return;
+      }
+      code = entered;
+      LS.set("dc_k", code);
+      $("codeErr").textContent = "";
+    }
+    name = n; LS.set("dc_name", name);
+    startCamera();
+    syncQuota();
   });
   $("nm").addEventListener("keydown", function (e) { if (e.key === "Enter") $("go").click(); });
   $("nm").addEventListener("input", function () { $("nmErr").textContent = ""; });
@@ -441,7 +457,8 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   var qn = (new URLSearchParams(location.search).get("to") || "").trim().slice(0, 40);
   if (qn) $("nm").value = qn; else if (name) $("nm").value = name;
 
-  render(); pump(); syncQuota();
+  render(); pump();
+  if (code) syncQuota();
   if (left() <= 0 && used > 0) show("done");
   else if (name) startCamera();
   else show("welcome");
