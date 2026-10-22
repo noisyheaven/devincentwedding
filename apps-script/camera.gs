@@ -5,7 +5,7 @@
 // Kode akses disimpan di Apps Script > Project Settings > Script Properties.
 // Tambahkan property ACCESS_CODE dengan nilai rahasia; jangan simpan kode di repo publik.
 
-var MAX_PER_GUEST = 10;          // jatah foto per perangkat/tamu
+var MAX_PER_GUEST = 15;          // jatah foto per perangkat/tamu
 var MAX_TOTAL = 3000;            // batas total foto (pengaman)
 var MAX_B64 = 2600000;           // batas ukuran satu foto (karakter base64, kira-kira 1,9 MB)
 var LIST_LIMIT = 600;            // jumlah foto terbaru yang ditampilkan di galeri
