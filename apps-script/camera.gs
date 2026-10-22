@@ -127,3 +127,33 @@ function doPost(e) {
     return json_({ ok: false, err: "error" });
   }
 }
+
+
+// ===== PEMBERSIHAN (jalankan manual dari editor: pilih fungsi lalu klik Run) =====
+
+// Galeri website membaca daftar dari sheet "Foto", BUKAN dari folder Drive.
+// Setelah menghapus foto di Drive, jalankan sinkronkan() supaya barisnya ikut hilang dari galeri.
+function sinkronkan() {
+  var sh = sheet_(), n = sh.getLastRow();
+  if (n < 2) { Logger.log("Sheet kosong."); return; }
+  var rows = sh.getRange(2, 1, n - 1, 6).getValues(), hapus = [];
+  for (var i = 0; i < rows.length; i++) {
+    var ok = false;
+    try { var f = DriveApp.getFileById(String(rows[i][3])); ok = !f.isTrashed(); } catch (e) { ok = false; }
+    if (!ok) hapus.push(i + 2);
+  }
+  for (var k = hapus.length - 1; k >= 0; k--) sh.deleteRow(hapus[k]);   // dari bawah supaya nomor baris tidak bergeser
+  CacheService.getScriptCache().remove(CACHE_KEY);
+  Logger.log("Selesai. " + hapus.length + " baris tanpa foto dihapus dari galeri.");
+}
+
+// HATI-HATI: mengosongkan SEMUA foto (folder Drive masuk tempat sampah + semua baris sheet dihapus).
+// Pakai hanya untuk membersihkan foto uji sebelum hari H.
+function resetSemua() {
+  var f = folder_(), it = f.getFiles(), c = 0;
+  while (it.hasNext()) { it.next().setTrashed(true); c++; }
+  var sh = sheet_(), n = sh.getLastRow();
+  if (n > 1) sh.deleteRows(2, n - 1);
+  CacheService.getScriptCache().remove(CACHE_KEY);
+  Logger.log("Reset: " + c + " foto dibuang, sheet dikosongkan.");
+}
