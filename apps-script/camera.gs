@@ -60,12 +60,26 @@ function hasPhoto_(sh, pid) {
   return false;
 }
 
-// Sembunyikan foto dari galeri: ubah sel kolom "Tampil" (F) menjadi FALSE.
+// Daftar id file yang MASIH ADA di folder Drive (foto yang dihapus/dibuang ke sampah tidak ikut).
+// Hasilnya disimpan 30 detik supaya tidak membebani Drive.
+function alive_() {
+  var cache = CacheService.getScriptCache(), hit = cache.get("alive_v1");
+  if (hit) { var o = {}; hit.split(",").forEach(function (id) { if (id) o[id] = 1; }); return o; }
+  var ids = [], it = folder_().getFiles();
+  while (it.hasNext()) ids.push(it.next().getId());
+  try { cache.put("alive_v1", ids.join(","), 30); } catch (err) {}
+  var res = {}; ids.forEach(function (id) { res[id] = 1; });
+  return res;
+}
+
+// Foto tampil di galeri bila: barisnya ada di sheet, kolom "Tampil" (F) bukan FALSE, DAN file-nya masih ada di folder Drive.
+// Jadi untuk membuang foto yang kurang bagus, cukup hapus file-nya di Google Drive.
 function list_() {
   var sh = sheet_(), n = sh.getLastRow();
   if (n < 2) return { ok: true, total: 0, items: [] };
+  var ok = alive_();
   var rows = sh.getRange(2, 1, n - 1, 6).getValues().filter(function (r) {
-    return r[3] && r[5] !== false;
+    return r[3] && r[5] !== false && ok[String(r[3])];
   });
   var items = rows.reverse().slice(0, LIST_LIMIT).map(function (r) {
     return { i: String(r[3]), n: String(r[1]), t: new Date(r[0]).getTime() };
