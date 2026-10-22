@@ -79,28 +79,43 @@ button.main{background:var(--wine);color:#fff}
   </div>
 </div>
 
-<script src="../js/qrcode.js"></script>
+<script src="/js/qrcode.js"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  function base() { return $("base").value.trim().replace(/[?#].*$/, "").replace(/\/?(index\.html)?$/, "/"); }
+  function base() {
+    var value = $("base").value.trim().replace(/[?#].*$/, "");
+    value = value.replace(/\/index\.html$/i, "").replace(/\/+$/, "");
+    return value + "/";
+  }
   function make(id, text) {
     var el = $(id); el.innerHTML = "";
     new QRCode(el, { text: text, width: 216, height: 216, colorDark: "#55001a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
   }
   function gen() {
     $("err").hidden = true;
-    if (typeof QRCode === "undefined") { $("err").textContent = "Library QR gagal dimuat (js/qrcode.js tidak ditemukan). Pastikan file itu sudah ikut diunggah."; $("err").hidden = false; return; }
+    $("qr1").innerHTML = "";
+    $("qr2").innerHTML = "";
+    if (typeof QRCode === "undefined") {
+      $("err").textContent = "Library QR gagal dimuat (js/qrcode.js tidak ditemukan). Pastikan file itu sudah ikut diunggah.";
+      $("err").hidden = false; return;
+    }
     var b = base();
-    if (!/^https:\/\//.test(b)) { $("err").textContent = "Alamat harus diawali https:// (kamera HP hanya bisa dipakai di alamat https)."; $("err").hidden = false; }
-    var k = $("code").value.trim().replace(/[^A-Za-z0-9_-]/g, "");
-    try { localStorage.setItem("qrk.code", k); } catch (e) {}
+    if (!/^https:\/\/[^/]+(?:\/.*)?$/i.test(b)) {
+      $("err").textContent = "Alamat harus berupa URL HTTPS yang valid.";
+      $("err").hidden = false; return;
+    }
+    var k = $("code").value.trim();
+    if (!/^[A-Za-z0-9_-]{1,40}$/.test(k)) {
+      $("err").textContent = "Masukkan kode acara 1–40 karakter (huruf, angka, _ atau -).";
+      $("err").hidden = false; return;
+    }
     var u1 = b + "kamera.html", u2 = b + "momen.html";
-    make("qr1", u1 + (k ? "?k=" + encodeURIComponent(k) : "")); make("qr2", u2);
-    $("u1").textContent = u1; $("u2").textContent = u2;   // kode sengaja tidak ditulis di kartu
-    if (!k) { $("err").textContent = "Kode acara masih kosong: QR kamera belum dilindungi."; $("err").hidden = false; }
+    make("qr1", u1 + "?k=" + encodeURIComponent(k));
+    make("qr2", u2);
+    $("u1").textContent = u1;
+    $("u2").textContent = u2;
   }
-  try { $("code").value = localStorage.getItem("qrk.code") || ""; } catch (e) {}
   $("code").addEventListener("input", gen);
   $("regen").addEventListener("click", gen);
   $("base").addEventListener("input", gen);
