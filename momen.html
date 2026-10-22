@@ -82,7 +82,7 @@ body.tv #tv{display:block}
   <h1>Momen Tamu</h1>
   <p class="sub">Foto-foto dari disposable camera para tamu Vincensius &amp; Devi</p>
   <div class="acts">
-    <a class="pill solid" href="kamera.html">📷 Ambil Foto</a>
+    <a class="pill solid" id="takePhoto" href="qr-scanner.html">📷 Ambil Foto</a>
     <a class="pill" href="?tv=1">🖥️ Mode Layar</a>
   </div>
   <span class="count" id="count" hidden></span>
@@ -104,6 +104,22 @@ body.tv #tv{display:block}
 
 <div id="tv"></div>
 
+<script>
+/* Alur akses kamera: tamu yang sudah pernah scan pada browser ini bisa lanjut langsung. */
+(function () {
+  var btn = document.getElementById("takePhoto");
+  if (!btn) return;
+  try {
+    var code = localStorage.getItem("dc_k") || "";
+    if (/^[A-Za-z0-9_-]{1,40}$/.test(code)) {
+      btn.href = "kamera.html?k=" + encodeURIComponent(code);
+      btn.setAttribute("aria-label", "Lanjut mengambil foto");
+    }
+  } catch (e) {
+    /* Jika penyimpanan browser tidak tersedia, arahkan tamu ke scanner. */
+  }
+})();
+</script>
 <script src="js/camera-config.js"></script>
 <script>
 (function () {
