@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>QR Disposable Camera</title>
+<link href="https://fonts.googleapis.com/css2?family=Italiana&family=Playfair+Display:wght@500&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--wine:#800020;--wine-d:#55001a;--tint:#f7eef0;--ink:#3a2a2e}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 Poppins,system-ui,sans-serif;color:var(--ink);background:var(--tint)}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+h1{color:var(--wine);font-family:Georgia,serif;margin:0 0 4px}
+p.sub{margin:0 0 18px;color:#6b5a5f}
+label{display:block;font-weight:600;margin:12px 0 6px}
+input{width:100%;font:inherit;padding:10px 12px;border:1px solid #d9bcc3;border-radius:10px;background:#fff;color:var(--ink)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 22px}
+button{font:inherit;font-size:.92rem;border:1px solid var(--wine);background:#fff;color:var(--wine);border-radius:99px;padding:8px 18px;cursor:pointer}
+button.main{background:var(--wine);color:#fff}
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+.card{background:linear-gradient(165deg,#a8334f,var(--wine) 45%,var(--wine-d));color:#fff;border-radius:22px;padding:30px 24px 26px;text-align:center;box-shadow:0 14px 34px rgba(128,0,32,.28);break-inside:avoid}
+.kick{letter-spacing:.3em;text-transform:uppercase;font-size:.7rem;opacity:.9;margin:0}
+.names{font:400 2.2rem/1.1 Italiana,serif;margin:6px 0 2px}
+.ttl{font:500 1.45rem "Playfair Display",Georgia,serif;margin:0 0 16px}
+.qr{width:236px;height:236px;margin:0 auto 14px;background:#fff;border-radius:16px;padding:10px;display:grid;place-items:center}
+.qr canvas,.qr img{display:block;max-width:100%;height:auto!important}
+.how{font-size:.95rem;margin:0}
+.how b{font-weight:500}
+.small{font-size:.74rem;opacity:.8;margin:10px 0 0;word-break:break-all}
+.dl{margin-top:12px}
+.dl button{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.6);font-size:.8rem;padding:6px 14px}
+.err{color:#8a3d4c;margin-top:10px}
+@media print{
+  body{background:#fff}.wrap{padding:0;max-width:none}
+  h1,p.sub,label,input,.bar,.dl,.err{display:none!important}
+  .sheet{grid-template-columns:1fr 1fr;gap:10mm}
+  .card{box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>QR Disposable Camera</h1>
+  <p class="sub">Cetak kartu ini dan taruh di meja tamu, pintu masuk, atau tiap meja. Tamu cukup memindai dengan kamera HP.</p>
+
+  <label for="base">Alamat website undangan</label>
+  <input id="base" value="https://devincentwedding.noisyheaven.workers.dev/">
+
+  <label for="code">Kode acara (harus sama dengan ACCESS_CODE di camera.gs)</label>
+  <input id="code" placeholder="mis. dv26xk7" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="40">
+  <p class="sub" style="margin:6px 0 0;font-size:.82rem">Kode ini hanya tertanam di dalam QR kamera, tidak tertulis di kartu. Tanpa kode, siapa pun yang tahu alamat kamera bisa mengirim foto.</p>
+
+  <div class="bar">
+    <button class="main" id="print">🖨️ Cetak</button>
+    <button id="regen">Perbarui QR</button>
+  </div>
+  <p class="err" id="err" hidden></p>
+
+  <div class="sheet">
+    <div class="card">
+      <p class="kick">Pernikahan</p>
+      <p class="names">Vincensius &amp; Devi</p>
+      <p class="ttl">Disposable Camera</p>
+      <div class="qr" id="qr1"></div>
+      <p class="how"><b>Scan</b> untuk memotret<br>10 foto per tamu 📷</p>
+      <p class="small" id="u1"></p>
+      <div class="dl"><button data-q="qr1" data-n="qr-kamera">⬇ Unduh PNG</button></div>
+    </div>
+    <div class="card">
+      <p class="kick">Pernikahan</p>
+      <p class="names">Vincensius &amp; Devi</p>
+      <p class="ttl">Momen Tamu</p>
+      <div class="qr" id="qr2"></div>
+      <p class="how"><b>Scan</b> untuk melihat semua foto<br>dari para tamu ✨</p>
+      <p class="small" id="u2"></p>
+      <div class="dl"><button data-q="qr2" data-n="qr-galeri">⬇ Unduh PNG</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/qrcode.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function base() { return $("base").value.trim().replace(/[?#].*$/, "").replace(/\/?(index\.html)?$/, "/"); }
+  function make(id, text) {
+    var el = $(id); el.innerHTML = "";
+    new QRCode(el, { text: text, width: 216, height: 216, colorDark: "#55001a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+  }
+  function gen() {
+    $("err").hidden = true;
+    if (typeof QRCode === "undefined") { $("err").textContent = "Library QR gagal dimuat (js/qrcode.js tidak ditemukan). Pastikan file itu sudah ikut diunggah."; $("err").hidden = false; return; }
+    var b = base();
+    if (!/^https:\/\//.test(b)) { $("err").textContent = "Alamat harus diawali https:// (kamera HP hanya bisa dipakai di alamat https)."; $("err").hidden = false; }
+    var k = $("code").value.trim().replace(/[^A-Za-z0-9_-]/g, "");
+    try { localStorage.setItem("qrk.code", k); } catch (e) {}
+    var u1 = b + "kamera.html", u2 = b + "momen.html";
+    make("qr1", u1 + (k ? "?k=" + encodeURIComponent(k) : "")); make("qr2", u2);
+    $("u1").textContent = u1; $("u2").textContent = u2;   // kode sengaja tidak ditulis di kartu
+    if (!k) { $("err").textContent = "Kode acara masih kosong: QR kamera belum dilindungi."; $("err").hidden = false; }
+  }
+  try { $("code").value = localStorage.getItem("qrk.code") || ""; } catch (e) {}
+  $("code").addEventListener("input", gen);
+  $("regen").addEventListener("click", gen);
+  $("base").addEventListener("input", gen);
+  $("print").addEventListener("click", function () { window.print(); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-q]"), function (btn) {
+    btn.addEventListener("click", function () {
+      var src = document.querySelector("#" + btn.dataset.q + " canvas");
+      if (!src) return;
+      var pad = 40, c = document.createElement("canvas"); c.width = src.width * 3 + pad * 2; c.height = c.width;   // PNG besar & tajam
+      var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height);
+      x.imageSmoothingEnabled = false; x.drawImage(src, pad, pad, src.width * 3, src.height * 3);
+      var a = document.createElement("a"); a.download = btn.dataset.n + ".png"; a.href = c.toDataURL("image/png"); a.click();
+    });
+  });
+  gen();
+})();
+</script>
+</body>
+</html>
