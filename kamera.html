@@ -148,6 +148,16 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   </div>
 </section>
 
+<!-- 5. KODE ACARA SALAH / TIDAK ADA -->
+<section id="denied" class="scr bgwine" hidden>
+  <div class="card">
+    <div class="big">🔒</div>
+    <h2>Scan ulang QR-nya ya</h2>
+    <p class="lead">Link kamera ini belum lengkap. Silakan pindai ulang kartu QR Disposable Camera di lokasi acara, atau tanyakan panitia.</p>
+    <div class="stack"><a class="pill ghost" href="momen.html">Lihat Momen Tamu</a></div>
+  </div>
+</section>
+
 <script src="js/camera-config.js"></script>
 <script>
 (function () {
@@ -166,6 +176,10 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   }
 
   /* ---------- identitas & jatah foto ---------- */
+  var kq = (new URLSearchParams(location.search).get("k") || "").trim().slice(0, 40);
+  if (kq) LS.set("dc_k", kq);
+  var code = kq || LS.get("dc_k") || "";
+
   var token = LS.get("dc_tk");
   if (!/^[a-z0-9]{12,40}$/i.test(token || "")) { token = rand(20); LS.set("dc_tk", token); }
   var name = (LS.get("dc_name") || "").trim();
@@ -174,7 +188,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   function left() { return Math.max(0, MAX - used); }
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
 
-  var screens = ["welcome", "cam", "fb", "done"], current = "";
+  var screens = ["welcome", "cam", "fb", "done", "denied"], current = "";
   function show(id) { current = id; screens.forEach(function (s) { $(s).hidden = s !== id; }); }
 
   function statText() {
@@ -194,7 +208,8 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
 
   function syncQuota() {   // jatah di server menang bila lebih besar (mis. foto diambil dari perangkat lain / data dihapus)
     if (!URL_) return;
-    fetch(URL_ + "?tk=" + encodeURIComponent(token)).then(function (r) { return r.json(); }).then(function (j) {
+    fetch(URL_ + "?tk=" + encodeURIComponent(token) + "&k=" + encodeURIComponent(code)).then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.err === "denied") { stopStream(); show("denied"); return; }
       if (!j || !j.ok) return;
       if (j.max) MAX = j.max;
       if (j.used > used) { used = j.used; LS.set("dc_used", String(used)); }
@@ -256,12 +271,12 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
       var ctl = window.AbortController ? new AbortController() : null,
           tm = ctl ? setTimeout(function () { ctl.abort(); }, 45000) : 0;   // koneksi macet > 45 dtk dibatalkan lalu dicoba lagi
       return fetch(URL_, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ tk: token, pid: it.pid, n: it.n, img: img }), signal: ctl ? ctl.signal : undefined })
+        body: JSON.stringify({ tk: token, k: code, pid: it.pid, n: it.n, img: img }), signal: ctl ? ctl.signal : undefined })
         .then(function (r) { clearTimeout(tm); return r.json(); }, function (e) { clearTimeout(tm); throw e; })
         .then(function (j) {
           if (j && j.ok) return "ok";
           var e = j && j.err;
-          if (!e || e === "busy" || e === "error") return "retry";
+          if (!e || e === "busy" || e === "error" || e === "denied") return "retry";   // "denied": foto tetap di antrean sampai kode benar
           return e === "limit" ? "limit" : "bad";
         });
     });
