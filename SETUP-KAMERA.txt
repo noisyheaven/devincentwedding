@@ -35,9 +35,16 @@ LANGKAH 4 - UJI SEBELUM HARI H (wajib)
   - Habiskan 10 foto: harus muncul layar "Film habis!".
   - Hapus foto uji dari Drive (dan barisnya dari sheet "Foto") sebelum hari H.
 
-MENYEMBUNYIKAN FOTO YANG TIDAK PANTAS
-  Buka sheet "Foto", ubah kolom "Tampil" (F) di baris foto itu menjadi FALSE.
-  Foto hilang dari galeri maksimal ±15 detik kemudian.
+MEMBUANG FOTO YANG KURANG BAGUS
+  Cara termudah: buka folder "Disposable Camera - Vincensius & Devi" di Google Drive, lihat
+  fotonya, lalu HAPUS file yang tidak diinginkan. Dalam +-30-40 detik foto itu hilang dari
+  galeri website (barisnya di sheet "Foto" boleh dibiarkan).
+  Alternatif: di sheet "Foto", ubah kolom "Tampil" (F) di baris foto itu menjadi FALSE.
+
+MEMBERSIHKAN FOTO UJI SEBELUM HARI H
+  Di editor Apps Script, pada bilah atas ada kotak pilihan nama fungsi di sebelah tombol
+  "Run". Pilih "resetSemua", lalu klik Run. Semua foto & baris sheet dikosongkan.
+  (Fungsi "sinkronkan" merapikan baris sheet yang file fotonya sudah dihapus - opsional.)
 
 MODE LAYAR (resepsi)
   Buka momen.html?tv=1 di laptop yang tersambung ke proyektor/TV, klik dua kali untuk layar penuh.
