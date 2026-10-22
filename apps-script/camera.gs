@@ -2,9 +2,8 @@
 // Menerima foto dari kamera.html, menyimpannya di Google Drive, dan memberi daftar foto ke momen.html.
 // Cara pasang: lihat SETUP-KAMERA.txt
 
-// KODE ACARA: isi dengan kode rahasia (huruf/angka, mis. "dv26xk7"). Kode yang sama dipasang di QR lewat
-// tools/qr-kamera.html. Kiriman tanpa kode yang benar ditolak. Kosongkan ("") untuk mematikan pengecekan.
-var ACCESS_CODE = "dv261226";
+// Kode akses disimpan di Apps Script > Project Settings > Script Properties.
+// Tambahkan property ACCESS_CODE dengan nilai rahasia; jangan simpan kode di repo publik.
 
 var MAX_PER_GUEST = 10;          // jatah foto per perangkat/tamu
 var MAX_TOTAL = 3000;            // batas total foto (pengaman)
@@ -49,7 +48,9 @@ function json_(o) {
 function safe_(s) { return /^[=+\-@\t\r]/.test(s) ? "'" + s : s; }
 
 function codeOk_(k) {
-  return !ACCESS_CODE || String(k || "") === ACCESS_CODE;
+  var expected = PropertiesService.getScriptProperties().getProperty("ACCESS_CODE");
+  // Tolak semua request jika kode belum dikonfigurasi (fail closed).
+  return !!expected && String(k || "") === expected;
 }
 // byte-byte pertama file JPEG selalu FF D8 FF (di Apps Script nilai byte bertanda: -1, -40, -1)
 function isJpeg_(b) {
