@@ -301,8 +301,22 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     if (ar) { var sa = sw0 / sh0; if (sa > ar) { sw = sh0 * ar; sx = (sw0 - sw) / 2; } else { sh = sw0 / ar; sy = (sh0 - sh) / 2; } }
     var k = Math.min(1, 1600 / Math.max(sw, sh)), c = document.createElement("canvas");
     c.width = Math.round(sw * k); c.height = Math.round(sh * k);
-    c.getContext("2d").drawImage(src, sx, sy, sw, sh, 0, 0, c.width, c.height);
+    var g = c.getContext("2d");
+    g.drawImage(src, sx, sy, sw, sh, 0, 0, c.width, c.height);
+    stamp(g, c.width, c.height);
     return c;
+  }
+
+  var WM = "#DeVinitelyInLove 26-12-26";   // watermark di pojok kanan bawah setiap foto
+  function stamp(g, w, h) {
+    var fs = Math.max(14, Math.round(Math.min(w, h) * 0.04)), m = Math.round(fs * 0.9);
+    g.save();
+    g.font = "700 " + fs + "px Georgia, 'Times New Roman', serif";
+    g.textAlign = "right"; g.textBaseline = "alphabetic";
+    g.shadowColor = "rgba(0,0,0,.55)"; g.shadowBlur = Math.round(fs * 0.35); g.shadowOffsetY = Math.round(fs * 0.06);
+    g.fillStyle = "rgba(255,255,255,.92)";
+    g.fillText(WM, w - m, h - m);
+    g.restore();
   }
 
   var ac;
