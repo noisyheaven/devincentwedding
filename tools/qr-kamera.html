@@ -47,6 +47,10 @@ button.main{background:var(--wine);color:#fff}
   <label for="base">Alamat website undangan</label>
   <input id="base" value="https://devincentwedding.noisyheaven.workers.dev/">
 
+  <label for="code">Kode acara</label>
+  <input id="code" type="password" placeholder="Masukkan kode acara" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="40">
+  <p class="sub" style="margin:6px 0 0;font-size:.82rem">Kode hanya dimasukkan saat membuat QR dan tidak disimpan di browser atau dicetak pada kartu.</p>
+
   <div class="bar">
     <button class="main" id="print">🖨️ Cetak</button>
     <button id="regen">Perbarui QR</button>
@@ -75,24 +79,43 @@ button.main{background:var(--wine);color:#fff}
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="/js/qrcode.js"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  function base() { return $("base").value.trim().replace(/[?#].*$/, "").replace(/\/?(index\.html)?$/, "/"); }
+  function base() {
+    var value = $("base").value.trim().replace(/[?#].*$/, "");
+    value = value.replace(/\/index\.html$/i, "").replace(/\/+$/, "");
+    return value + "/";
+  }
   function make(id, text) {
     var el = $(id); el.innerHTML = "";
     new QRCode(el, { text: text, width: 216, height: 216, colorDark: "#55001a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
   }
   function gen() {
     $("err").hidden = true;
-    if (typeof QRCode === "undefined") { $("err").textContent = "Library QR gagal dimuat. Pastikan komputer terhubung internet lalu muat ulang halaman."; $("err").hidden = false; return; }
+    $("qr1").innerHTML = "";
+    $("qr2").innerHTML = "";
+    if (typeof QRCode === "undefined") {
+      $("err").textContent = "Library QR gagal dimuat (js/qrcode.js tidak ditemukan). Pastikan file itu sudah ikut diunggah.";
+      $("err").hidden = false; return;
+    }
     var b = base();
-    if (!/^https:\/\//.test(b)) { $("err").textContent = "Alamat harus diawali https:// (kamera HP hanya bisa dipakai di alamat https)."; $("err").hidden = false; }
+    if (!/^https:\/\/[^/]+(?:\/.*)?$/i.test(b)) {
+      $("err").textContent = "Alamat harus berupa URL HTTPS yang valid.";
+      $("err").hidden = false; return;
+    }
+    var k = $("code").value.trim();
+    if (!/^[A-Za-z0-9_-]{1,40}$/.test(k)) {
+      $("err").textContent = "Masukkan kode acara 1–40 karakter (huruf, angka, _ atau -).";
+      $("err").hidden = false; return;
+    }
     var u1 = b + "kamera.html", u2 = b + "momen.html";
-    make("qr1", u1); make("qr2", u2);
+    make("qr1", u1 + "?k=" + encodeURIComponent(k));
+    make("qr2", u2);
     $("u1").textContent = u1; $("u2").textContent = u2;
   }
+  $("code").addEventListener("input", gen);
   $("regen").addEventListener("click", gen);
   $("base").addEventListener("input", gen);
   $("print").addEventListener("click", function () { window.print(); });
