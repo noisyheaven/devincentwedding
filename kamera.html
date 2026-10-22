@@ -253,9 +253,11 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   function send(it) {   // -> "ok" | "retry" | "limit" | "bad"
     if (!URL_) return Promise.resolve("ok");
     return toDataURL(it.blob).then(function (img) {
+      var ctl = window.AbortController ? new AbortController() : null,
+          tm = ctl ? setTimeout(function () { ctl.abort(); }, 45000) : 0;   // koneksi macet > 45 dtk dibatalkan lalu dicoba lagi
       return fetch(URL_, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ tk: token, pid: it.pid, n: it.n, img: img }) })
-        .then(function (r) { return r.json(); })
+        body: JSON.stringify({ tk: token, pid: it.pid, n: it.n, img: img }), signal: ctl ? ctl.signal : undefined })
+        .then(function (r) { clearTimeout(tm); return r.json(); }, function (e) { clearTimeout(tm); throw e; })
         .then(function (j) {
           if (j && j.ok) return "ok";
           var e = j && j.err;
