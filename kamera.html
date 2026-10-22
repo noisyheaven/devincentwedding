@@ -209,10 +209,29 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     ["fbStat", "doneStat"].forEach(function (id) { $(id).textContent = s.t; $(id).hidden = !s.t; });
   }
 
+  function requestCodeAgain(message) {
+    stopStream();
+    code = "";
+    LS.set("dc_k", "");
+    $("codeField").hidden = false;
+    $("eventCode").value = "";
+    $("codeErr").textContent = message || "Kode acara salah. Masukkan kode yang benar.";
+    $("go").disabled = false;
+    show("welcome");
+  }
+
+  function verifyCode(value) {
+    if (!URL_) return Promise.resolve({ ok: true, local: true });
+    return fetch(URL_ + "?tk=" + encodeURIComponent(token) + "&k=" + encodeURIComponent(value))
+      .then(function (r) { if (!r.ok) throw new Error("network"); return r.json(); });
+  }
+
   function syncQuota() {   // jatah di server menang bila lebih besar (mis. foto diambil dari perangkat lain / data dihapus)
     if (!URL_ || !code) return;
-    fetch(URL_ + "?tk=" + encodeURIComponent(token) + "&k=" + encodeURIComponent(code)).then(function (r) { return r.json(); }).then(function (j) {
-      if (j && j.err === "denied") { stopStream(); show("denied"); return; }
+    var checking = code;
+    verifyCode(checking).then(function (j) {
+      if (checking !== code) return;
+      if (j && j.err === "denied") { requestCodeAgain("Kode acara salah. Silakan masukkan kode yang benar."); return; }
       if (!j || !j.ok) return;
       if (j.max) MAX = j.max;
       if (j.used > used) { used = j.used; LS.set("dc_used", String(used)); }
@@ -431,24 +450,42 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     if (document.hidden) stopStream(); else if (!stream) startCamera();
   });
 
-  /* ---------- mulai ---------- */
+  /* ---------- mulai: verifikasi kode sebelum meminta izin kamera ---------- */
   $("codeField").hidden = !!code;
   $("go").addEventListener("click", function () {
     var n = $("nm").value.trim().slice(0, 40);
     if (!n) { $("nmErr").textContent = "Tulis namamu dulu ya."; $("nm").focus(); return; }
-    if (!code) {
-      var entered = $("eventCode").value.trim();
-      if (!/^[A-Za-z0-9_-]{1,40}$/.test(entered)) {
-        $("codeErr").textContent = "Masukkan kode acara yang benar (1–40 karakter).";
-        $("eventCode").focus(); return;
+    var entered = code || $("eventCode").value.trim();
+    if (!/^[A-Za-z0-9_-]{1,40}$/.test(entered)) {
+      $("codeField").hidden = false;
+      $("codeErr").textContent = "Masukkan kode acara yang benar (1–40 karakter).";
+      $("eventCode").focus(); return;
+    }
+
+    $("go").disabled = true;
+    $("codeErr").textContent = URL_ ? "Memeriksa kode acara..." : "";
+    verifyCode(entered).then(function (j) {
+      if (!j || !j.ok) {
+        requestCodeAgain(j && j.err === "denied"
+          ? "Kode acara salah. Silakan masukkan kode yang benar."
+          : "Kode belum bisa diverifikasi. Periksa koneksi internet lalu coba lagi.");
+        return;
       }
       code = entered;
       LS.set("dc_k", code);
+      $("codeField").hidden = true;
       $("codeErr").textContent = "";
-    }
-    name = n; LS.set("dc_name", name);
-    startCamera();
-    syncQuota();
+      name = n; LS.set("dc_name", name);
+      if (j.max) MAX = j.max;
+      if (typeof j.used === "number" && j.used > used) {
+        used = j.used; LS.set("dc_used", String(used));
+      }
+      $("go").disabled = false;
+      render();
+      startCamera();
+    }).catch(function () {
+      requestCodeAgain("Kode belum bisa diverifikasi. Periksa koneksi internet lalu coba lagi.");
+    });
   });
   $("nm").addEventListener("keydown", function (e) { if (e.key === "Enter") $("go").click(); });
   $("nm").addEventListener("input", function () { $("nmErr").textContent = ""; });
