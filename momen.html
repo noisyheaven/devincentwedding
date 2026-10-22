@@ -116,9 +116,12 @@ body.tv #tv{display:block}
 
   function thumb(id, w) { return "https://lh3.googleusercontent.com/d/" + id + "=w" + w; }
   function alt(id, w) { return "https://drive.google.com/thumbnail?id=" + id + "&sz=w" + w; }
-  function loadImg(img, id, w) {   // coba lh3, bila gagal pakai thumbnail Drive
+  function loadImg(img, id, w, onGone) {   // coba lh3, bila gagal pakai thumbnail Drive; bila keduanya gagal (foto sudah dihapus dari Drive) -> kartu dibuang
     img.onload = function () { img.classList.add("ok"); };
-    img.onerror = function () { img.onerror = function () {}; img.src = alt(id, w); img.onload = function () { img.classList.add("ok"); }; };
+    img.onerror = function () {
+      img.onerror = function () { if (onGone) onGone(); };
+      img.src = alt(id, w); img.onload = function () { img.classList.add("ok"); };
+    };
     img.src = thumb(id, w);
   }
   function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
@@ -173,7 +176,7 @@ body.tv #tv{display:block}
     img.addEventListener("load", function () {   // ikuti rasio asli foto
       if (img.naturalWidth && img.naturalHeight) b.querySelector(".im").style.setProperty("--ar", img.naturalWidth + "/" + img.naturalHeight);
     });
-    loadImg(img, x.i, 600);
+    loadImg(img, x.i, 600, function () { if (b.parentNode) b.parentNode.removeChild(b); });
     b.addEventListener("click", function () { openLb(x.i); });
     return b;
   }
