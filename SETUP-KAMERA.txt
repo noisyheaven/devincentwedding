@@ -1,0 +1,49 @@
+DISPOSABLE CAMERA - CARA PASANG (sekali saja)
+=============================================
+
+FILE YANG TERLIBAT
+  kamera.html            halaman kamera untuk tamu (dibuka lewat QR)
+  momen.html             galeri foto tamu (+ Mode Layar: momen.html?tv=1)
+  js/camera-config.js    alamat Apps Script (CAM_URL) dan jatah foto (CAM_MAX)
+  apps-script/camera.gs  backend: menyimpan foto ke Google Drive
+  tools/qr-kamera.html   membuat & mencetak kartu QR
+
+LANGKAH 1 - BACKEND (Google Apps Script)
+  1. Buat Google Sheet baru, nama bebas (mis. "Disposable Camera").
+  2. Menu Extensions > Apps Script. Hapus isinya, tempel seluruh isi apps-script/camera.gs.
+  3. Pilih fungsi "setup" lalu klik Run. Izinkan akses (Drive & Sheets) saat diminta.
+     Ini membuat folder "Disposable Camera - Vincensius & Devi" di Google Drive Anda
+     dan sheet "Foto".
+  4. Deploy > New deployment > jenis "Web app".
+        Execute as : Me
+        Who has access : Anyone
+     Klik Deploy, salin "Web app URL" (berakhiran /exec).
+  5. Setiap kali camera.gs diubah, pilih Deploy > Manage deployments > Edit > New version.
+
+LANGKAH 2 - HUBUNGKAN KE WEBSITE
+  Buka js/camera-config.js, isi CAM_URL dengan URL tadi. CAM_MAX harus sama dengan
+  MAX_PER_GUEST di camera.gs (default 10). Upload ke GitHub, tunggu Cloudflare selesai deploy.
+
+LANGKAH 3 - QR
+  Buka https://(alamat-website-anda)/tools/qr-kamera.html, klik Cetak atau Unduh PNG.
+  Taruh di meja tamu / pintu masuk.
+
+LANGKAH 4 - UJI SEBELUM HARI H (wajib)
+  - Scan QR dengan 2 HP berbeda (Android & iPhone), potret beberapa foto, pastikan muncul di momen.html.
+  - Coba dibuka dari dalam WhatsApp/Instagram: kalau kamera langsung tidak muncul, tombol
+    "Ambil Foto" (kamera bawaan HP) harus tetap bekerja.
+  - Habiskan 10 foto: harus muncul layar "Film habis!".
+  - Hapus foto uji dari Drive (dan barisnya dari sheet "Foto") sebelum hari H.
+
+MENYEMBUNYIKAN FOTO YANG TIDAK PANTAS
+  Buka sheet "Foto", ubah kolom "Tampil" (F) di baris foto itu menjadi FALSE.
+  Foto hilang dari galeri maksimal ±15 detik kemudian.
+
+MODE LAYAR (resepsi)
+  Buka momen.html?tv=1 di laptop yang tersambung ke proyektor/TV, klik dua kali untuk layar penuh.
+  Foto baru otomatis diputar lebih dulu.
+
+CATATAN
+  - Jatah 10 foto dicatat per perangkat (token di browser). Tamu yang sengaja menghapus data browser
+    bisa mendapat jatah baru; untuk acara keluarga/tamu undangan ini wajar diterima.
+  - Foto disimpan di Google Drive Anda (kuota 15 GB gratis; ±3000 foto muat).
