@@ -47,9 +47,9 @@ button.main{background:var(--wine);color:#fff}
   <label for="base">Alamat website undangan</label>
   <input id="base" value="https://devincentwedding.noisyheaven.workers.dev/">
 
-  <label for="code">Kode acara (harus sama dengan ACCESS_CODE di camera.gs)</label>
-  <input id="code" placeholder="mis. dv261226" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="40">
-  <p class="sub" style="margin:6px 0 0;font-size:.82rem">Kode ini hanya tertanam di dalam QR kamera, tidak tertulis di kartu. Tanpa kode, siapa pun yang tahu alamat kamera bisa mengirim foto.</p>
+  <label for="code">Kode acara (harus sama dengan Script Property ACCESS_CODE)</label>
+  <input id="code" type="password" placeholder="Masukkan kode acara" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="40">
+  <p class="sub" style="margin:6px 0 0;font-size:.82rem">Kode hanya tertanam di dalam QR kamera, tidak ditulis di kartu dan tidak disimpan di browser.</p>
 
   <div class="bar">
     <button class="main" id="print">🖨️ Cetak</button>
