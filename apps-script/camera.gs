@@ -4,7 +4,7 @@
 
 // KODE ACARA: isi dengan kode rahasia (huruf/angka, mis. "dv26xk7"). Kode yang sama dipasang di QR lewat
 // tools/qr-kamera.html. Kiriman tanpa kode yang benar ditolak. Kosongkan ("") untuk mematikan pengecekan.
-var ACCESS_CODE = "";
+var ACCESS_CODE = "dv261226";
 
 var MAX_PER_GUEST = 10;          // jatah foto per perangkat/tamu
 var MAX_TOTAL = 3000;            // batas total foto (pengaman)
