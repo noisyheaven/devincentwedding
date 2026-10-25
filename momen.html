@@ -152,7 +152,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
   if (!btn) return;
   function scan(e) {
     if (e) e.preventDefault();
-    QRScan.open({ title: "Pindai QR Kamera Acara", onCode: function (code) {
+    QRScan.open({ title: "Pindai QR Kamera Acara", verifyUrl: window.CAM_URL || "", onCode: function (code) {
       try { localStorage.setItem("dc_k", code); } catch (x) {}
       var cv = document.createElement("div");   // layar anggur memudar masuk, lalu pindah ke kamera
       cv.style.cssText = "position:fixed;inset:0;z-index:2000;opacity:0;transition:opacity .35s ease-in;background:radial-gradient(circle at 20% 10%,#a8334f 0,transparent 55%),linear-gradient(170deg,#800020,#55001a 70%,#2a0310)";
