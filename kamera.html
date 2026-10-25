@@ -157,6 +157,17 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   </div>
 </section>
 
+<!-- 6. KAMERA DITUTUP (acara selesai) -->
+<section id="closed" class="scr bgwine" hidden>
+  <div class="card">
+    <div class="big">🌙</div>
+    <h2>Kamera sudah ditutup</h2>
+    <p class="lead">Acara telah selesai, jadi Disposable Camera tidak lagi menerima foto. Terima kasih sudah ikut mengabadikan hari bahagia Vincensius &amp; Devi!</p>
+    <div class="stack"><a class="pill" href="momen.html">Lihat Momen Tamu</a></div>
+    <div class="chip" id="closedStat" hidden></div>
+  </div>
+</section>
+
 <!-- 5. KODE ACARA SALAH / TIDAK ADA -->
 <section id="denied" class="scr bgwine" hidden>
   <div class="card">
@@ -198,7 +209,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   function left() { return Math.max(0, MAX - used); }
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
 
-  var screens = ["welcome", "cam", "fb", "done", "denied"], current = "";
+  var screens = ["welcome", "cam", "fb", "done", "denied", "closed"], current = "";
   function show(id) { current = id; screens.forEach(function (s) { $(s).hidden = s !== id; }); }
 
   function statText() {
@@ -213,9 +224,23 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     Array.prototype.forEach.call(document.querySelectorAll(".maxn"), function (e) { e.textContent = MAX; });
     var s = statText();
     $("stat").textContent = s.t; $("stat").className = "stat" + (s.w ? " warn" : "");
-    ["fbStat", "doneStat"].forEach(function (id) { $(id).textContent = s.t; $(id).hidden = !s.t; });
+    ["fbStat", "doneStat", "closedStat"].forEach(function (id) { $(id).textContent = s.t; $(id).hidden = !s.t; });
   }
 
+  /* ---------- jam penutupan (mengikuti jam server, bukan jam HP) ---------- */
+  var closeAt = 0, skew = 0, closeT = 0;
+  function isClosed() { return !!closeAt && Date.now() + skew >= closeAt; }
+  function showClosed() { stopStream(); if (current !== "closed") show("closed"); render(); pump(); }
+  function applyClock(j) {   // j.now & j.closeAt (ms) dari server; true bila sudah ditutup
+    if (j && j.closeAt && j.now) {
+      closeAt = Number(j.closeAt); skew = Number(j.now) - Date.now();
+      clearTimeout(closeT);
+      var ms = closeAt - (Date.now() + skew);
+      if (ms > 0 && ms < 2147000000) closeT = setTimeout(showClosed, ms + 300);   // tutup otomatis tepat saat waktunya, walau kamera sedang terbuka
+    }
+    if (j && j.closed) closeAt = closeAt || 1;
+    return isClosed();
+  }
   function syncQuota() {   // jatah di server menang bila lebih besar (mis. foto diambil dari perangkat lain / data dihapus)
     if (!URL_ || !code) return;
     fetch(URL_ + "?tk=" + encodeURIComponent(token) + "&k=" + encodeURIComponent(code)).then(function (r) { return r.json(); }).then(function (j) {
@@ -224,6 +249,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
       if (j.max) MAX = j.max;
       if (j.used > used) { used = j.used; LS.set("dc_used", String(used)); }
       render();
+      if (applyClock(j)) { showClosed(); return; }
       if (left() <= 0 && current !== "done" && current !== "welcome") finish(0);
     }).catch(function () {});
   }
@@ -281,11 +307,12 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
       var ctl = window.AbortController ? new AbortController() : null,
           tm = ctl ? setTimeout(function () { ctl.abort(); }, 150000) : 0;   // foto besar butuh waktu; koneksi macet > 150 dtk dibatalkan lalu dicoba lagi
       return fetch(URL_, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ tk: token, k: code, pid: it.pid, n: it.n, img: img }), signal: ctl ? ctl.signal : undefined })
+        body: JSON.stringify({ tk: token, k: code, pid: it.pid, n: it.n, t: it.t, img: img }), signal: ctl ? ctl.signal : undefined })
         .then(function (r) { clearTimeout(tm); return r.json(); }, function (e) { clearTimeout(tm); throw e; })
         .then(function (j) {
           if (j && j.ok) return "ok";
           var e = j && j.err;
+          if (e === "closed") { closeAt = closeAt || 1; showClosed(); return "bad"; }   // lewat batas waktu: foto dibuang dari antrean
           if (e === "denied") { showDenied(); return "retry"; }   // foto tetap di antrean sampai kode benar
           if (!e || e === "busy" || e === "error") return "retry";
           return e === "limit" ? "limit" : "bad";
@@ -368,7 +395,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   function accept(blob) {   // foto sah: kurangi jatah, simpan di antrean, kirim
     used++; LS.set("dc_used", String(used)); render();
     var pid = "p" + Date.now().toString(36) + rand(5);
-    return store.put({ pid: pid, blob: blob, n: name, t: Date.now() }).then(function () {
+    return store.put({ pid: pid, blob: blob, n: name, t: Date.now() + skew }).then(function () {
       pendingN++; render(); pump();
       if (left() <= 0) finish(1100);
     });
@@ -376,6 +403,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   function finish(delay) { setTimeout(function () { stopStream(); show("done"); render(); }, delay); }
 
   function shoot() {
+    if (isClosed()) { showClosed(); return; }
     if (!ready || busy || left() <= 0) return;
     var vw = v.videoWidth, vh = v.videoHeight;
     if (!vw || !vh) return;
@@ -394,6 +422,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     v.srcObject = null;
   }
   function startCamera() {
+    if (isClosed()) { showClosed(); return; }
     show("cam"); render(); stopStream();
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { fallback("nosupport"); return; }
     navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: facing }, width: { ideal: 3840 }, height: { ideal: 2160 } } })
@@ -421,7 +450,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   $("shutter").addEventListener("click", shoot);
   $("flip").addEventListener("click", function () { facing = facing === "environment" ? "user" : "environment"; startCamera(); });
   $("fbRetry").addEventListener("click", startCamera);
-  $("fbShoot").addEventListener("click", function () { if (left() > 0) $("file").click(); else finish(0); });
+  $("fbShoot").addEventListener("click", function () { if (isClosed()) { showClosed(); return; } if (left() > 0) $("file").click(); else finish(0); });
   $("file").addEventListener("change", function () {
     var f = this.files && this.files[0]; this.value = "";
     if (!f || left() <= 0) return;
@@ -460,7 +489,9 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
       if (!j || !j.ok) { setDenied("Gagal memeriksa kode. Periksa sinyal, lalu pindai lagi.", false); return; }
       if (j.max) MAX = j.max;
       if (j.used > used) { used = j.used; LS.set("dc_used", String(used)); }
-      render(); proceed();
+      render();
+      if (applyClock(j)) { pump(); showClosed(); return; }
+      proceed();
     }).catch(function () { setDenied("Gagal memeriksa kode. Periksa sinyal, lalu pindai lagi.", false); });
   }
   function scanQr() { QRScan.open({ title: "Pindai QR Kamera Acara", verifyUrl: URL_, onCode: takeCode }); }
