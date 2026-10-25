@@ -4,6 +4,7 @@
 
 // Kode akses disimpan di Apps Script > Project Settings > Script Properties.
 // Tambahkan property ACCESS_CODE dengan nilai rahasia; jangan simpan kode di repo publik.
+var ACCESS_CODE = "dv261226";
 
 var MAX_PER_GUEST = 15;          // jatah foto per perangkat/tamu
 var MAX_TOTAL = 3000;            // batas total foto (pengaman)
