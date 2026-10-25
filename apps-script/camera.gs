@@ -8,6 +8,13 @@
 // (dipakai bila nilai di bawah ini masih "GANTI_KODE_ACARA").
 var ACCESS_CODE = "dv261226";
 
+// KAMERA DITUTUP: setelah waktu ini foto baru ditolak server (jam server, tidak bisa diakali lewat jam HP).
+// Galeri (momen.html) tetap bisa dilihat. Format: tahun-bulan-tanggalTjam:menit:detik+07:00 (WIB).
+var CLOSE_AT = "2026-12-26T21:00:00+07:00";
+// Tenggang untuk foto yang SUDAH dipotret sebelum waktu tutup tetapi baru terkirim sesudahnya (sinyal jelek).
+// Dalam menit. 0 = tanpa tenggang.
+var GRACE_MIN = 60;
+
 var MAX_PER_GUEST = 15;          // jatah foto per perangkat/tamu
 var MAX_TOTAL = 3000;            // batas total foto (pengaman)
 var MAX_B64 = 14000000;          // batas ukuran satu foto (karakter base64, kira-kira 10 MB)
@@ -55,6 +62,21 @@ function accessCode_() {
   if (v && v !== "GANTI_KODE_ACARA") return v;
   return String(PropertiesService.getScriptProperties().getProperty("ACCESS_CODE") || "").trim();
 }
+// Waktu tutup (ms). Untuk UJI COBA: di Script Properties buat property CLOSE_AT berisi waktu lain (mis. 2026-10-25T19:30:00+07:00); hapus lagi setelah uji.
+function closeMs_() {
+  var v = PropertiesService.getScriptProperties().getProperty("CLOSE_AT") || CLOSE_AT;
+  var t = new Date(String(v).trim()).getTime();
+  return isNaN(t) ? 0 : t;
+}
+function closed_() { var c = closeMs_(); return !!c && Date.now() >= c; }
+// Foto boleh diterima? Sebelum tutup: ya. Sesudah tutup: hanya bila dipotret sebelum tutup dan masih dalam masa tenggang.
+function openFor_(takenMs) {
+  var c = closeMs_();
+  if (!c || Date.now() < c) return true;
+  var t = Number(takenMs) || 0;
+  return GRACE_MIN > 0 && t > 0 && t <= c && Date.now() < c + GRACE_MIN * 60000;
+}
+
 function codeOk_(k) {
   var expected = accessCode_();
   // Tolak semua request jika kode belum dikonfigurasi (fail closed).
@@ -118,7 +140,7 @@ function doGet(e) {
   var tk = e && e.parameter && e.parameter.tk;
   if (tk) {   // cek sisa jatah satu tamu (sekaligus memastikan kode acara benar)
     if (!codeOk_(e.parameter.k)) return json_({ ok: false, err: "denied" });
-    return json_({ ok: true, used: count_(sheet_(), String(tk)), max: MAX_PER_GUEST });
+    return json_({ ok: true, used: count_(sheet_(), String(tk)), max: MAX_PER_GUEST, closed: closed_(), closeAt: closeMs_(), now: Date.now() });
   }
   var cache = CacheService.getScriptCache();
   var hit = cache.get(CACHE_KEY);
@@ -136,6 +158,7 @@ function doPost(e) {
     var name = String(d.n || "").trim().slice(0, 40);
     var img = String(d.img || "");
     if (!codeOk_(d.k)) return json_({ ok: false, err: "denied" });   // sebelum rate limit, supaya orang luar tidak bisa menghabiskan jatah kirim
+    if (!openFor_(d.t)) return json_({ ok: false, err: "closed" });   // kamera sudah ditutup
     if (!/^[a-z0-9]{12,40}$/i.test(tk) || !/^[a-z0-9_-]{6,40}$/i.test(pid) || !name) return json_({ ok: false, err: "bad" });
     if (img.indexOf("data:image/jpeg;base64,") !== 0) return json_({ ok: false, err: "bad" });
     if (img.length > MAX_B64) return json_({ ok: false, err: "big" });
