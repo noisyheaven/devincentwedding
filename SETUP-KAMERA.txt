@@ -3,7 +3,7 @@ DISPOSABLE CAMERA - CARA PASANG (sekali saja)
 
 FILE YANG TERLIBAT
   kamera.html            halaman kamera untuk tamu (dibuka lewat QR)
-  momen.html             galeri foto tamu (+ Mode Layar: momen.html?tv=1)
+  momen.html             galeri foto tamu (papan tulis, 4 foto per layar, geser untuk halaman lain)
   js/camera-config.js    alamat Apps Script (CAM_URL) dan jatah foto (CAM_MAX)
   apps-script/camera.gs  backend: menyimpan foto ke Google Drive
   tools/qr-kamera.html   membuat & mencetak kartu QR
@@ -56,10 +56,6 @@ MEMBERSIHKAN FOTO UJI SEBELUM HARI H
   Di editor Apps Script, pada bilah atas ada kotak pilihan nama fungsi di sebelah tombol
   "Run". Pilih "resetSemua", lalu klik Run. Semua foto & baris sheet dikosongkan.
   (Fungsi "sinkronkan" merapikan baris sheet yang file fotonya sudah dihapus - opsional.)
-
-MODE LAYAR (resepsi)
-  Buka momen.html?tv=1 di laptop yang tersambung ke proyektor/TV, klik dua kali untuk layar penuh.
-  Foto baru otomatis diputar lebih dulu.
 
 CATATAN
   - Jatah 10 foto dicatat per perangkat (token di browser). Tamu yang sengaja menghapus data browser
