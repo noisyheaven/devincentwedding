@@ -462,7 +462,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
       render(); proceed();
     }).catch(function () { setDenied("Gagal memeriksa kode. Periksa sinyal, lalu pindai lagi.", false); });
   }
-  function scanQr() { QRScan.open({ title: "Pindai QR Kamera Acara", onCode: takeCode }); }
+  function scanQr() { QRScan.open({ title: "Pindai QR Kamera Acara", verifyUrl: URL_, onCode: takeCode }); }
   $("rescan").addEventListener("click", scanQr);
   $("scanCode").addEventListener("click", scanQr);
 
