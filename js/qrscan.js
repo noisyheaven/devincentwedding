@@ -3,7 +3,11 @@
    QRScan.open({ title, onCode: function (kode) {} })  -> onCode dipanggil sekali bila QR kamera acara terbaca. */
 (function () {
   "use strict";
-  var JSQR_URL = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js";
+  var BASE = (document.currentScript && document.currentScript.src || "").replace(/[^/]*$/, "");
+  // Urutan: salinan sendiri (js/jsqr.js, bila Anda mengunggahnya), lalu CDN. Detektor bawaan browser (Android Chrome dll.) dipakai lebih dulu bila ada.
+  var JSQR_URLS = [BASE + "jsqr.js", "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"];
+  var nat = null;
+  try { if (window.BarcodeDetector) nat = new BarcodeDetector({ formats: ["qr_code"] }); } catch (e) { nat = null; }
   var CODE_RE = /^[A-Za-z0-9_-]{1,40}$/;
   var css = [
     "#qrs{position:fixed;inset:0;z-index:1000;background:rgba(20,5,10,.9);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;font-family:Poppins,system-ui,sans-serif}",
@@ -39,7 +43,7 @@
   ].join("\n");
 
   var el, video, canvas, ctx, status, btnCam, btnSw, btnFile, fileIn;
-  var stream = null, scanning = false, raf = 0, facing = "environment", last = 0, opts = null, loading = null, badLock = false, finishing = false, box;
+  var stream = null, scanning = false, raf = 0, facing = "environment", last = 0, opts = null, loading = null, badLock = false, finishing = false, box, reading = false, opener = null;
 
   function parse(raw) {   // isi QR -> kode acara ("" bila bukan QR kamera acara)
     raw = String(raw || "").trim();
@@ -48,17 +52,37 @@
     if (!c && CODE_RE.test(raw)) c = raw;   // QR berisi kode saja
     return CODE_RE.test(c) ? c : "";
   }
-  function loadLib() {
-    if (window.jsQR) return Promise.resolve();
-    if (loading) return loading;
-    loading = new Promise(function (ok, no) {
+  function loadOne(url) {
+    return new Promise(function (ok, no) {
       var s = document.createElement("script");
-      s.src = JSQR_URL; s.async = true;
+      s.src = url; s.async = true;
       s.onload = function () { window.jsQR ? ok() : no(); };
-      s.onerror = function () { loading = null; no(); };
+      s.onerror = function () { s.remove(); no(); };
       document.head.appendChild(s);
     });
+  }
+  function loadLib() {   // coba tiap sumber berurutan; bila semua gagal, boleh dicoba lagi nanti
+    if (window.jsQR) return Promise.resolve();
+    if (loading) return loading;
+    loading = JSQR_URLS.reduce(function (p, u) { return p.catch(function () { return loadOne(u); }); }, Promise.reject())
+      .catch(function () { loading = null; throw new Error("lib"); });
     return loading;
+  }
+  // baca QR dari satu gambar/frame (video, canvas, bitmap) -> Promise<string> ("" bila tidak ada)
+  function readQR(src, w, h) {
+    var viaLib = function () {
+      if (!window.jsQR) return "";
+      canvas.width = w; canvas.height = h;
+      ctx.drawImage(src, 0, 0, w, h);
+      var px = ctx.getImageData(0, 0, w, h);
+      var r = window.jsQR(px.data, w, h, { inversionAttempts: "attemptBoth" });
+      return r && r.data ? r.data : "";
+    };
+    if (!nat) return Promise.resolve(viaLib());
+    return nat.detect(src).then(function (res) { return res && res[0] && res[0].rawValue ? res[0].rawValue : viaLib(); }, viaLib);
+  }
+  function ready() {   // pemindai siap bila ada detektor bawaan ATAU jsQR
+    return nat || window.jsQR ? Promise.resolve() : loadLib();
   }
   function say(t, err) { status.textContent = t; status.className = "s" + (err ? " e" : ""); }
 
@@ -89,6 +113,9 @@
     fileIn.addEventListener("change", function () { if (fileIn.files && fileIn.files[0]) scanFile(fileIn.files[0]); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !el.hidden) close(); });
     window.addEventListener("pagehide", stopCamera);
+    document.addEventListener("visibilitychange", function () {   // HP dikunci / pindah aplikasi: kamera dimatikan
+      if (document.hidden && stream) { stopCamera(); if (!finishing) say("Kamera dijeda. Ketuk \"Buka kamera & pindai\" untuk lanjut."); }
+    });
   }
 
   function stopCamera() {
@@ -105,6 +132,8 @@
     if (box) box.className = "v";
     if (el) { el.hidden = true; el.classList.remove("out"); }
     document.body.classList.remove("qrs-open");
+    try { if (opener && opener.focus) opener.focus({ preventScroll: true }); } catch (e) {}
+    opener = null;
   }
   function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
   function wrong(msg) {   // QR salah: kamera bergetar + merah + getar HP
@@ -170,18 +199,19 @@
     if (t - last < 130) return;   // ±7x per detik cukup, hemat baterai
     last = t;
     if (video.readyState < 2 || !video.videoWidth) return;
+    if (reading) return;
     var k = Math.min(1, 720 / Math.max(video.videoWidth, video.videoHeight));
-    canvas.width = Math.round(video.videoWidth * k); canvas.height = Math.round(video.videoHeight * k);
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    var px = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    var r = window.jsQR(px.data, px.width, px.height, { inversionAttempts: "attemptBoth" });
-    if (r && r.data) found(r.data);
+    reading = true;
+    readQR(video, Math.round(video.videoWidth * k), Math.round(video.videoHeight * k)).then(function (d) {
+      reading = false;
+      if (d && scanning) found(d);
+    }, function () { reading = false; });
   }
   function startCamera() {
     stopCamera();
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { say("Kamera tidak tersedia di browser ini. Pilih gambar QR dari galeri.", true); return; }
     btnCam.disabled = true; btnCam.textContent = "Meminta izin kamera…";
-    loadLib().then(function () {
+    ready().then(function () {
       return navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: facing }, width: { ideal: 1280 }, height: { ideal: 720 } } });
     }).then(function (s) {
       if (el.hidden) { s.getTracks().forEach(function (t) { t.stop(); }); return; }
@@ -193,7 +223,7 @@
       });
     }).catch(function (e) {
       stopCamera();
-      if (!window.jsQR) say("Pemindai belum termuat. Periksa sinyal, lalu coba lagi, atau pilih gambar QR dari galeri.", true);
+      if (!nat && !window.jsQR) say("Pemindai belum termuat. Periksa sinyal, lalu coba lagi, atau pilih gambar QR dari galeri.", true);
       else if (e && (e.name === "NotAllowedError" || e.name === "PermissionDeniedError")) say("Izin kamera ditolak. Izinkan kamera untuk situs ini, atau pilih gambar QR dari galeri.", true);
       else say("Kamera tidak bisa dibuka. Tutup aplikasi lain yang memakai kamera, atau pilih gambar QR dari galeri.", true);
     });
@@ -213,29 +243,31 @@
   }
   function decodeImage(src) {   // coba beberapa ukuran: QR kecil di screenshot besar kadang baru terbaca setelah diperkecil
     var w = src.naturalWidth || src.width, h = src.naturalHeight || src.height, tried = {};
-    var sizes = [1600, 1000, 640, 420];
-    for (var i = 0; i < sizes.length; i++) {
-      var k = Math.min(1, sizes[i] / Math.max(w, h)), cw = Math.max(1, Math.round(w * k)), ch = Math.max(1, Math.round(h * k));
-      if (tried[cw]) continue; tried[cw] = 1;
-      canvas.width = cw; canvas.height = ch;
-      ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cw, ch);   // PNG transparan -> latar putih
-      ctx.drawImage(src, 0, 0, cw, ch);
-      var px = ctx.getImageData(0, 0, cw, ch);
-      var r = window.jsQR(px.data, cw, ch, { inversionAttempts: "attemptBoth" });
-      if (r && r.data) return r.data;
-    }
-    return "";
+    var sizes = [1600, 1000, 640, 420], chain = Promise.resolve("");
+    sizes.forEach(function (sz) {
+      chain = chain.then(function (found) {
+        if (found) return found;
+        var k = Math.min(1, sz / Math.max(w, h)), cw = Math.max(1, Math.round(w * k)), ch = Math.max(1, Math.round(h * k));
+        if (tried[cw]) return "";
+        tried[cw] = 1;
+        var c = document.createElement("canvas"); c.width = cw; c.height = ch;
+        var g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, cw, ch);   // PNG transparan -> latar putih
+        g.drawImage(src, 0, 0, cw, ch);
+        return readQR(c, cw, ch);
+      });
+    });
+    return chain;
   }
   function scanFile(f) {
     stopCamera();
     say("Membaca gambar…");
-    loadLib().then(function () { return bitmapOf(f); }).then(function (bm) {
-      var data = decodeImage(bm);
-      if (bm.close) bm.close();
+    ready().then(function () { return bitmapOf(f); }).then(function (bm) {
+      return decodeImage(bm).then(function (d) { if (bm.close) bm.close(); return d; });
+    }).then(function (data) {
       if (!data) { say("QR tidak ditemukan di gambar itu. Pakai gambar yang jelas, atau crop hingga hanya QR-nya.", true); return; }
       found(data);
     }).catch(function () {
-      say(window.jsQR ? "Gambar tidak bisa dibaca. Coba gambar lain." : "Pemindai belum termuat. Periksa sinyal lalu coba lagi.", true);
+      say(nat || window.jsQR ? "Gambar tidak bisa dibaca. Coba gambar lain." : "Pemindai belum termuat. Periksa sinyal lalu coba lagi.", true);
     });
   }
 
@@ -243,7 +275,9 @@
     opts = o || {};
     build();
     el.querySelector("#qrsT").textContent = opts.title || "Pindai QR Kamera Acara";
+    opener = document.activeElement;
     el.hidden = false; document.body.classList.add("qrs-open");
+    try { el.querySelector(".x").focus({ preventScroll: true }); } catch (e) {}
     finishing = false; badLock = false; box.className = "v"; el.classList.remove("out");
     btnSw.hidden = true; say("");
     loadLib().catch(function () {});   // muat pustaka sambil menunggu
