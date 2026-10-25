@@ -228,15 +228,20 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   }
 
   /* ---------- jam penutupan (mengikuti jam server, bukan jam HP) ---------- */
+  var CLOSE_DEFAULT = Date.parse("2026-12-26T21:00:00+07:00");   // cadangan sebelum jam server diterima; server tetap yang menentukan
   var closeAt = 0, skew = 0, closeT = 0;
+  function schedule() {   // tutup otomatis tepat saat waktunya, walau kamera sedang terbuka
+    clearTimeout(closeT);
+    var ms = closeAt - (Date.now() + skew);
+    if (ms > 0 && ms < 2147000000) closeT = setTimeout(showClosed, ms);
+  }
   function isClosed() { return !!closeAt && Date.now() + skew >= closeAt; }
   function showClosed() { stopStream(); if (current !== "closed") show("closed"); render(); pump(); }
   function applyClock(j) {   // j.now & j.closeAt (ms) dari server; true bila sudah ditutup
     if (j && j.closeAt && j.now) {
       closeAt = Number(j.closeAt); skew = Number(j.now) - Date.now();
-      clearTimeout(closeT);
-      var ms = closeAt - (Date.now() + skew);
-      if (ms > 0 && ms < 2147000000) closeT = setTimeout(showClosed, ms + 300);   // tutup otomatis tepat saat waktunya, walau kamera sedang terbuka
+      LS.set("dc_close", String(closeAt));   // diingat supaya kunjungan berikutnya langsung tertutup, tanpa menunggu jaringan
+      schedule();
     }
     if (j && j.closed) closeAt = closeAt || 1;
     return isClosed();
@@ -524,11 +529,24 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   var qn = (new URLSearchParams(location.search).get("to") || "").trim().slice(0, 40);
   if (qn) $("nm").value = qn; else if (name) $("nm").value = name;
 
+  /* Layar pertama baru dipilih SETELAH jam server diketahui (maks. 2,5 dtk), supaya halaman kamera tidak sempat
+     tampil/dipakai memotret ketika sudah ditutup. Bila sudah lewat waktu tutup menurut ingatan/jam HP, layar
+     "ditutup" langsung tampil tanpa menunggu jaringan. */
+  function boot() { if (code) syncQuota(); proceed(); }
+  function start() {
+    closeAt = Number(LS.get("dc_close")) || CLOSE_DEFAULT; schedule();
+    if (isClosed()) { show("closed"); render(); }
+    if (!URL_) { if (!isClosed()) boot(); return; }
+    var done = false, tm = setTimeout(function () { if (!done) { done = true; if (!isClosed()) boot(); } }, 2500);
+    fetch(URL_ + "?clock=1").then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.ok) applyClock(j);
+      var late = done; done = true; clearTimeout(tm);
+      if (isClosed()) { showClosed(); return; }
+      if (!late || current === "closed") boot();   // belum ada layar, atau ingatan lama keliru (mis. waktu tutup diubah)
+    }).catch(function () { if (!done) { done = true; clearTimeout(tm); if (!isClosed()) boot(); } });
+  }
   render(); pump();
-  if (code) syncQuota();
-  if (left() <= 0 && used > 0) show("done");
-  else if (name) startCamera();
-  else show("welcome");
+  start();
 })();
 </script>
 </body>
