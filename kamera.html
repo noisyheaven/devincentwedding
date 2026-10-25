@@ -272,7 +272,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     if (!URL_) return Promise.resolve("ok");
     return toDataURL(it.blob).then(function (img) {
       var ctl = window.AbortController ? new AbortController() : null,
-          tm = ctl ? setTimeout(function () { ctl.abort(); }, 45000) : 0;   // koneksi macet > 45 dtk dibatalkan lalu dicoba lagi
+          tm = ctl ? setTimeout(function () { ctl.abort(); }, 150000) : 0;   // foto besar butuh waktu; koneksi macet > 150 dtk dibatalkan lalu dicoba lagi
       return fetch(URL_, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ tk: token, k: code, pid: it.pid, n: it.n, img: img }), signal: ctl ? ctl.signal : undefined })
         .then(function (r) { clearTimeout(tm); return r.json(); }, function (e) { clearTimeout(tm); throw e; })
@@ -314,10 +314,10 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   /* ---------- ambil foto ---------- */
   var v = $("v"), vf = $("vf"), stream = null, facing = "environment", ready = false, busy = false;
 
-  function drawCover(src, sw0, sh0, ar) {   // potong ke rasio ar (0 = tanpa potong), perkecil max 1600px
+  function drawCover(src, sw0, sh0, ar) {   // potong ke rasio ar (0 = tanpa potong), tanpa diperkecil kecuali di atas 16 MP (batas aman canvas iPhone)
     var sx = 0, sy = 0, sw = sw0, sh = sh0;
     if (ar) { var sa = sw0 / sh0; if (sa > ar) { sw = sh0 * ar; sx = (sw0 - sw) / 2; } else { sh = sw0 / ar; sy = (sh0 - sh) / 2; } }
-    var k = Math.min(1, 1600 / Math.max(sw, sh)), c = document.createElement("canvas");
+    var k = Math.min(1, Math.sqrt(16000000 / (sw * sh))), c = document.createElement("canvas");
     c.width = Math.round(sw * k); c.height = Math.round(sh * k);
     var g = c.getContext("2d");
     g.drawImage(src, sx, sy, sw, sh, 0, 0, c.width, c.height);
@@ -376,7 +376,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     c.toBlob(function (b) {
       if (!b) { busy = false; return; }
       accept(b).then(function () { busy = false; });
-    }, "image/jpeg", 0.82);
+    }, "image/jpeg", 0.95);
   }
 
   /* ---------- kamera langsung ---------- */
@@ -388,7 +388,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   function startCamera() {
     show("cam"); render(); stopStream();
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { fallback("nosupport"); return; }
-    navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: facing }, width: { ideal: 2560 }, height: { ideal: 1440 } } })
+    navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: facing }, width: { ideal: 3840 }, height: { ideal: 2160 } } })
       .then(function (s) {
         if (current !== "cam") { s.getTracks().forEach(function (t) { t.stop(); }); return; }
         stream = s; v.srcObject = s;
@@ -416,7 +416,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   $("file").addEventListener("change", function () {
     var f = this.files && this.files[0]; this.value = "";
     if (!f || left() <= 0) return;
-    var done = function (src, w, h) { drawCover(src, w, h, 0).toBlob(function (b) { if (b) accept(b); }, "image/jpeg", 0.82); };
+    var done = function (src, w, h) { drawCover(src, w, h, 0).toBlob(function (b) { if (b) accept(b); }, "image/jpeg", 0.95); };
     if (window.createImageBitmap) {
       createImageBitmap(f, { imageOrientation: "from-image" }).catch(function () { return createImageBitmap(f); })
         .then(function (bm) { done(bm, bm.width, bm.height); });
