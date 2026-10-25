@@ -25,6 +25,11 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 
 /* layar sambutan / info */
 .card{margin:auto;width:min(440px,100%);padding:calc(28px + env(safe-area-inset-top,0px)) 24px calc(28px + env(safe-area-inset-bottom,0px));text-align:center;overflow-y:auto;max-height:100%}
+.scr:not([hidden]){animation:scrIn .5s ease-out}
+@keyframes scrIn{from{opacity:0;transform:scale(1.05)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.scr:not([hidden]){animation:none}}
+.stack{display:flex;flex-direction:column;align-items:center;gap:12px}
+.stack .pill{cursor:pointer}
 .bgwine{background:radial-gradient(circle at 20% 10%,#a8334f 0,transparent 55%),linear-gradient(170deg,var(--wine),var(--wine-d) 70%,#2a0310)}
 .kick{letter-spacing:.3em;text-transform:uppercase;font-size:.72rem;opacity:.85}
 h1{font:400 clamp(2.3rem,11vw,3.2rem)/1.1 Italiana,serif;margin:6px 0 4px}
@@ -97,6 +102,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     <label class="field" id="codeField" hidden><span>Kode acara (minta kepada panitia)</span>
       <input id="eventCode" type="password" maxlength="40" placeholder="Masukkan kode acara" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
     <p class="err" id="codeErr"></p>
+    <p id="scanRow" style="margin:-4px 0 16px" hidden><button type="button" class="pill ghost" id="scanCode">📷 Scan QR kode acara</button></p>
     <label class="field"><span>Namamu (akan tampil di foto)</span>
       <input id="nm" type="text" maxlength="40" placeholder="mis. Budi Santoso" autocomplete="name" enterkeyhint="go"></label>
     <p class="err" id="nmErr"></p>
@@ -156,12 +162,13 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   <div class="card">
     <div class="big">🔒</div>
     <h2>Kode acara belum benar</h2>
-    <p class="lead">Periksa kode acara yang dimasukkan, atau tanyakan kepada panitia. Kamu juga bisa kembali ke Momen Tamu.</p>
-    <div class="stack"><a class="pill ghost" href="momen.html">Lihat Momen Tamu</a></div>
+    <p class="lead" id="deniedMsg">QR atau kode yang dipakai tidak cocok. Scan ulang QR resmi di lokasi acara, atau pilih gambar QR yang sudah kamu unduh.</p>
+    <div class="stack"><button class="pill" id="rescan">📷 Scan ulang QR</button><a class="pill ghost" href="momen.html">Lihat Momen Tamu</a></div>
   </div>
 </section>
 
 <script src="js/camera-config.js"></script>
+<script src="js/qrscan.js"></script>
 <script>
 (function () {
   "use strict";
@@ -212,7 +219,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   function syncQuota() {   // jatah di server menang bila lebih besar (mis. foto diambil dari perangkat lain / data dihapus)
     if (!URL_ || !code) return;
     fetch(URL_ + "?tk=" + encodeURIComponent(token) + "&k=" + encodeURIComponent(code)).then(function (r) { return r.json(); }).then(function (j) {
-      if (j && j.err === "denied") { stopStream(); show("denied"); return; }
+      if (j && j.err === "denied") { showDenied(); return; }
       if (!j || !j.ok) return;
       if (j.max) MAX = j.max;
       if (j.used > used) { used = j.used; LS.set("dc_used", String(used)); }
@@ -279,7 +286,8 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
         .then(function (j) {
           if (j && j.ok) return "ok";
           var e = j && j.err;
-          if (!e || e === "busy" || e === "error" || e === "denied") return "retry";   // "denied": foto tetap di antrean sampai kode benar
+          if (e === "denied") { showDenied(); return "retry"; }   // foto tetap di antrean sampai kode benar
+          if (!e || e === "busy" || e === "error") return "retry";
           return e === "limit" ? "limit" : "bad";
         });
     });
@@ -431,8 +439,35 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     if (document.hidden) stopStream(); else if (!stream) startCamera();
   });
 
+  /* ---------- kode acara salah -> scan ulang ---------- */
+  var DENIED_MSG = "QR atau kode yang dipakai tidak cocok. Scan ulang QR resmi di lokasi acara, atau pilih gambar QR yang sudah kamu unduh.";
+  function setDenied(msg, busy) { $("deniedMsg").textContent = msg; $("rescan").disabled = !!busy; }
+  function showDenied(msg) { stopStream(); setDenied(msg || DENIED_MSG, false); if (current !== "denied") show("denied"); }
+  function proceed() {
+    pump();
+    if (left() <= 0 && used > 0) show("done");
+    else if (name) startCamera();
+    else show("welcome");
+  }
+  function takeCode(c) {   // kode baru dari QR: simpan, periksa ke server, lanjut
+    code = c; LS.set("dc_k", c);
+    $("codeField").hidden = true; $("scanRow").hidden = true; $("codeErr").textContent = "";
+    if (!URL_) { proceed(); return; }
+    show("denied"); setDenied("Memeriksa kode…", true);
+    fetch(URL_ + "?tk=" + encodeURIComponent(token) + "&k=" + encodeURIComponent(code)).then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.err === "denied") { setDenied("Kode dari QR itu belum benar. Pindai QR resmi di lokasi acara, atau tanyakan kepada panitia.", false); return; }
+      if (!j || !j.ok) { setDenied("Gagal memeriksa kode. Periksa sinyal, lalu pindai lagi.", false); return; }
+      if (j.max) MAX = j.max;
+      if (j.used > used) { used = j.used; LS.set("dc_used", String(used)); }
+      render(); proceed();
+    }).catch(function () { setDenied("Gagal memeriksa kode. Periksa sinyal, lalu pindai lagi.", false); });
+  }
+  function scanQr() { QRScan.open({ title: "Pindai QR Kamera Acara", onCode: takeCode }); }
+  $("rescan").addEventListener("click", scanQr);
+  $("scanCode").addEventListener("click", scanQr);
+
   /* ---------- mulai ---------- */
-  $("codeField").hidden = !!code;
+  $("codeField").hidden = !!code; $("scanRow").hidden = !!code;
   $("go").addEventListener("click", function () {
     var n = $("nm").value.trim().slice(0, 40);
     if (!n) { $("nmErr").textContent = "Tulis namamu dulu ya."; $("nm").focus(); return; }
