@@ -28,7 +28,7 @@ LANGKAH 1 - BACKEND (Google Apps Script)
 
 LANGKAH 2 - HUBUNGKAN KE WEBSITE
   Buka js/camera-config.js, isi CAM_URL dengan URL tadi. CAM_MAX harus sama dengan
-  MAX_PER_GUEST di camera.gs (default 10). Upload ke GitHub, tunggu Cloudflare selesai deploy.
+  MAX_PER_GUEST di camera.gs (default 15). Upload ke GitHub, tunggu Cloudflare selesai deploy.
 
 LANGKAH 3 - QR
   Buka https://(alamat-website-anda)/tools/qr-kamera.html, isi kolom "Kode acara" (sama dengan
@@ -43,7 +43,7 @@ LANGKAH 4 - UJI SEBELUM HARI H (wajib)
   - Scan QR dengan 2 HP berbeda (Android & iPhone), potret beberapa foto, pastikan muncul di momen.html.
   - Coba dibuka dari dalam WhatsApp/Instagram: kalau kamera langsung tidak muncul, tombol
     "Ambil Foto" (kamera bawaan HP) harus tetap bekerja.
-  - Habiskan 10 foto: harus muncul layar "Film habis!".
+  - Habiskan 15 foto: harus muncul layar "Film habis!".
   - Hapus foto uji dari Drive (dan barisnya dari sheet "Foto") sebelum hari H.
 
 MEMBUANG FOTO YANG KURANG BAGUS
@@ -58,6 +58,6 @@ MEMBERSIHKAN FOTO UJI SEBELUM HARI H
   (Fungsi "sinkronkan" merapikan baris sheet yang file fotonya sudah dihapus - opsional.)
 
 CATATAN
-  - Jatah 10 foto dicatat per perangkat (token di browser). Tamu yang sengaja menghapus data browser
+  - Jatah 15 foto dicatat per perangkat (token di browser). Tamu yang sengaja menghapus data browser
     bisa mendapat jatah baru; untuk acara keluarga/tamu undangan ini wajar diterima.
   - Foto disimpan di Google Drive Anda (kuota 15 GB gratis; ±3000 foto muat).
