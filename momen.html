@@ -332,5 +332,34 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
   document.addEventListener("visibilitychange", function () { if (!document.hidden) fetchList(); });
 })();
 </script>
+<script>
+/* Tombol "Ambil Foto" disembunyikan setelah kamera ditutup (jam server; cadangan: jam HP). */
+(function () {
+  "use strict";
+  var btn = document.getElementById("takePhoto"); if (!btn) return;
+  var DEF = Date.parse("2026-12-26T21:00:00+07:00");   // cadangan; samakan dengan CLOSE_AT di camera.gs
+  var ls = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  var closeAt = Number(ls("dc_close")) || DEF, skew = 0, timer = 0;
+  function apply() {
+    clearTimeout(timer);
+    var ms = closeAt - (Date.now() + skew);
+    btn.hidden = ms <= 0;
+    if (ms > 0) timer = setTimeout(apply, Math.min(ms, 60000) + 50);
+  }
+  function sync() {
+    if (!window.CAM_URL || !window.fetch) return;
+    fetch(window.CAM_URL + "?clock=1").then(function (r) { return r.json(); }).then(function (j) {
+      if (!j || !j.ok) return;
+      if (j.closeAt && j.now) {
+        closeAt = Number(j.closeAt); skew = Number(j.now) - Date.now();
+        try { localStorage.setItem("dc_close", String(closeAt)); } catch (e) {}
+      } else if (j.closed) closeAt = 1;
+      apply();
+    }).catch(function () {});
+  }
+  apply(); sync();
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) { apply(); sync(); } });
+})();
+</script>
 </body>
 </html>
