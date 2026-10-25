@@ -20,7 +20,7 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 a{color:inherit}
 
 /* bilah atas */
-.top{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 8px;max-width:1000px;width:100%;margin:0 auto}
+.top{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff;padding:calc(8px + env(safe-area-inset-top,0px)) 14px 6px;max-width:1000px;width:100%;margin:0 auto}
 .top h1{font:400 clamp(1.5rem,6.4vw,2.1rem)/1 Italiana,serif;letter-spacing:.02em}
 .top small{display:block;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;opacity:.85;margin-bottom:2px}
 .pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:8px 16px;font:500 .84rem Poppins,sans-serif;text-decoration:none;background:#fff;color:var(--wine);white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.18)}
@@ -41,15 +41,16 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
 .dd{position:absolute;z-index:0;pointer-events:none;overflow:visible}
 .dd *{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:3}
 
-#grid{position:relative;z-index:1;flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:20px 14px;padding:12px 16px 2px}
+#grid{position:relative;z-index:1;flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:18px 10px;padding:10px 8px 0}
 @media (min-aspect-ratio:13/10){#grid{grid-template-columns:repeat(4,1fr);grid-template-rows:1fr;gap:14px 20px}}
 #grid>*{min-width:0;min-height:0}
-.pol{position:relative;display:flex;flex-direction:column;width:100%;height:100%;text-align:left;background:#fff;padding:6px 6px 4px;border-radius:3px;
+.pol{position:relative;display:flex;flex-direction:column;width:100%;height:100%;text-align:left;background:#fff;padding:5px 5px 2px;border-radius:3px;
   box-shadow:0 1px 2px rgba(0,0,0,.25),0 8px 16px rgba(60,20,30,.22);transform:rotate(var(--r,0deg));transition:transform .2s;animation:land .5s cubic-bezier(.2,.9,.3,1.15) both;animation-delay:calc(var(--k,0)*55ms)}
 .pol:hover{transform:rotate(0deg) translateY(-3px)}
 .pol .im{position:relative;flex:1;min-height:0;display:block;overflow:hidden;background:#ead9dd;border-radius:2px}
-.pol img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}
+.pol img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .5s}
 .pol img.ok{opacity:1}
+.pol img.bgb{inset:-10%;width:120%;height:120%;object-fit:cover;filter:blur(14px) saturate(1.1);transform:translateZ(0)}
 .pol .by{flex:none;display:block;font:700 clamp(1rem,4.4vw,1.2rem)/1.15 var(--hand);color:#3a2a2e;text-align:center;padding:3px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pol.new{animation:pop .75s cubic-bezier(.2,.9,.3,1.25) both}
 .pin{position:absolute;z-index:2;left:50%;top:-9px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff9,transparent 38%),var(--pc,#800020);box-shadow:0 3px 5px rgba(0,0,0,.35)}
@@ -118,7 +119,7 @@ body.qr-scanner-open{overflow:hidden}
 <body>
 
 <div class="top">
-  <div><small>Pernikahan</small><h1>Momen Tamu</h1><span class="count" id="count" hidden></span></div>
+  <div><h1>Momen Tamu</h1><span class="count" id="count" hidden></span></div>
   <a class="pill" id="takePhoto" href="kamera.html">📷 Ambil Foto</a>
 </div>
 
@@ -356,11 +357,13 @@ body.qr-scanner-open{overflow:hidden}
     if (k === 1 || k === 2) { deco.className = "tape"; deco.style.setProperty("--tr", (k === 1 ? 5 : -4) + "deg"); }
     else { deco.className = "pin"; deco.style.setProperty("--pc", PINS[h % PINS.length]); }
     var im = document.createElement("span"); im.className = "im";
+    var bg = document.createElement("img"); bg.className = "bgb"; bg.alt = ""; bg.setAttribute("aria-hidden", "true");   // latar buram dari foto yang sama, mengisi sisi bila rasio foto berbeda
     var img = document.createElement("img"); img.decoding = "async"; img.alt = "Foto oleh " + x.n;   // lewat DOM supaya nama tamu tidak bisa menyisipkan kode
-    im.appendChild(img);
+    im.appendChild(bg); im.appendChild(img);
+    img.addEventListener("load", function () { bg.src = img.currentSrc || img.src; bg.classList.add("ok"); });
     var by = document.createElement("span"); by.className = "by"; by.textContent = x.n;
     b.appendChild(deco); b.appendChild(im); b.appendChild(by);
-    loadImg(img, x.i, 600, function () {   // foto sudah dihapus dari Drive
+    loadImg(img, x.i, 800, function () {   // foto sudah dihapus dari Drive
       items = items.filter(function (y) { return y.i !== x.i; });
       if (page >= pages()) page = pages() - 1;
       shown = ""; render({}, "");
