@@ -3,7 +3,7 @@
 // Kalau server tidak bisa dihubungi, dipakai jam HP.
 (function () {
   "use strict";
-  var OPEN_AT = Date.parse("2026-10-24T21:10:00+07:00");   // <- ubah di sini bila jadwalnya berganti
+  var OPEN_AT = Date.parse("2026-10-26T21:10:00+07:00");   // <- ubah di sini bila jadwalnya berganti
   var sec = document.getElementById("momen");
   if (!sec) return;
   var skew = 0, timer = 0;
