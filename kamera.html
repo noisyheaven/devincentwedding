@@ -408,6 +408,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
       .catch(function (err) { fallback(err && err.name); });
   }
   function fallback(reason) {
+    if (current === "denied") return;   // kode ditolak lebih dulu: jangan ditimpa layar "buka kamera HP"
     stopStream(); show("fb"); render();
     var denied = reason === "NotAllowedError" || reason === "SecurityError";
     $("fbTitle").textContent = denied ? "Kamera belum diizinkan" : "Buka kamera HP";
