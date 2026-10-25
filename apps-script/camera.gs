@@ -2,8 +2,10 @@
 // Menerima foto dari kamera.html, menyimpannya di Google Drive, dan memberi daftar foto ke momen.html.
 // Cara pasang: lihat SETUP-KAMERA.txt
 
-// Kode akses disimpan di Apps Script > Project Settings > Script Properties.
-// Tambahkan property ACCESS_CODE dengan nilai rahasia; jangan simpan kode di repo publik.
+// KODE AKSES (harus sama dengan kode di dalam QR kamera).
+// Isi di editor Apps Script saja, jangan di-commit ke GitHub publik.
+// Alternatif tanpa menyentuh kode: Project Settings > Script Properties > property ACCESS_CODE
+// (dipakai bila nilai di bawah ini masih "GANTI_KODE_ACARA").
 var ACCESS_CODE = "dv261226";
 
 var MAX_PER_GUEST = 15;          // jatah foto per perangkat/tamu
@@ -48,10 +50,21 @@ function json_(o) {
 }
 function safe_(s) { return /^[=+\-@\t\r]/.test(s) ? "'" + s : s; }
 
+function accessCode_() {
+  var v = String(ACCESS_CODE || "").trim();
+  if (v && v !== "GANTI_KODE_ACARA") return v;
+  return String(PropertiesService.getScriptProperties().getProperty("ACCESS_CODE") || "").trim();
+}
 function codeOk_(k) {
-  var expected = PropertiesService.getScriptProperties().getProperty("ACCESS_CODE");
+  var expected = accessCode_();
   // Tolak semua request jika kode belum dikonfigurasi (fail closed).
-  return !!expected && String(k || "") === expected;
+  return !!expected && String(k || "").trim() === expected;
+}
+// Jalankan dari editor (pilih "cekKode" lalu Run) untuk memastikan kode yang aktif; lihat hasilnya di Execution log.
+function cekKode() {
+  var c = accessCode_();
+  var sumber = (String(ACCESS_CODE || "").trim() && ACCESS_CODE !== "GANTI_KODE_ACARA") ? "variabel ACCESS_CODE di kode" : "Script Properties";
+  Logger.log(c ? "Kode aktif dari " + sumber + ": " + c.length + " karakter, diawali \"" + c.slice(0, 2) + "\"" : "BELUM ADA KODE. Semua foto akan ditolak.");
 }
 // byte-byte pertama file JPEG selalu FF D8 FF (di Apps Script nilai byte bertanda: -1, -40, -1)
 function isJpeg_(b) {
