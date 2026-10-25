@@ -8,45 +8,82 @@
 <title>Momen Tamu • Vincensius &amp; Devi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Italiana&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Italiana&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--wine:#800020;--wine-d:#55001a;--ink:#3a2a2e;--tint:#f7eef0}
+:root{--wine:#800020;--wine-d:#55001a;--ink:#3a2a2e;--tint:#f7eef0;--marker:#800020;--blue:#2b5fa8;--green:#2f7d52;--gold:#c8962e;--hand:Caveat,"Segoe Print","Bradley Hand",cursive}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
-body{font:300 16px/1.6 Poppins,system-ui,sans-serif;color:var(--ink);background:var(--tint);min-height:100vh}
+html,body{height:100%}
+body{font:300 16px/1.5 Poppins,system-ui,sans-serif;color:var(--ink);height:100vh;height:100svh;overflow:hidden;display:flex;flex-direction:column;
+  background:radial-gradient(circle at 18% 8%,rgba(255,255,255,.2),transparent 42%),radial-gradient(circle at 88% 96%,rgba(255,214,150,.2),transparent 40%),linear-gradient(160deg,#b13a57 0%,var(--wine) 55%,var(--wine-d) 100%)}
 button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 a{color:inherit}
 
-/* kepala */
-header{position:relative;overflow:hidden;color:#fff;text-align:center;padding:calc(34px + env(safe-area-inset-top,0px)) 20px 30px;background:linear-gradient(150deg,#c4475f 0%,var(--wine) 55%,var(--wine-d) 100%)}
-header:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 15%,rgba(255,255,255,.22),transparent 45%),radial-gradient(circle at 85% 90%,rgba(255,214,150,.25),transparent 40%)}
-header>*{position:relative}
-.kick{letter-spacing:.3em;text-transform:uppercase;font-size:.72rem;opacity:.9}
-h1{font:400 clamp(2.2rem,9vw,3.2rem)/1.1 Italiana,serif;margin:6px 0 4px}
-.sub{font-size:.9rem;opacity:.92;max-width:34ch;margin:0 auto}
-.acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
-.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid #fff;color:#fff;border-radius:99px;padding:9px 22px;font:400 .92rem Poppins,sans-serif;text-decoration:none;background:rgba(255,255,255,.12)}
-.pill.solid{background:#fff;color:var(--wine);font-weight:500}
+/* bilah atas */
+.top{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 8px;max-width:1000px;width:100%;margin:0 auto}
+.top h1{font:400 clamp(1.5rem,6.4vw,2.1rem)/1 Italiana,serif;letter-spacing:.02em}
+.top small{display:block;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;opacity:.85;margin-bottom:2px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:8px 16px;font:500 .84rem Poppins,sans-serif;text-decoration:none;background:#fff;color:var(--wine);white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.18)}
 .pill:active{transform:scale(.97)}
-.count{display:inline-block;margin-top:16px;font-size:.8rem;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:4px 14px}
+.count{display:block;font-size:.72rem;opacity:.9;margin-top:3px}
 
-/* galeri */
-main{max-width:1200px;margin:0 auto;padding:18px 12px 60px}
-#grid{columns:2;column-gap:10px}
-@media(min-width:640px){#grid{columns:3;column-gap:14px}main{padding:26px 20px 70px}}
-@media(min-width:1000px){#grid{columns:4}}
-.ph{break-inside:avoid;margin:0 0 10px;background:#fff;border-radius:6px;padding:6px 6px 8px;box-shadow:0 6px 18px rgba(128,0,32,.12);cursor:pointer;display:block;width:100%;text-align:left;transition:transform .2s}
-@media(min-width:640px){.ph{margin-bottom:14px}}
-.ph:hover{transform:translateY(-3px) rotate(-.4deg)}
-.ph .im{display:block;width:100%;aspect-ratio:var(--ar,3/4);background:#ead9dd;border-radius:3px;overflow:hidden}
-.ph img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}
-.ph img.ok{opacity:1}
-.ph .by{display:block;margin-top:6px;font-size:.74rem;color:#8a7378;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px}
-.ph.new{animation:pop .7s cubic-bezier(.2,.9,.3,1.2) both}
-@keyframes pop{0%{opacity:0;transform:scale(.8) rotate(-3deg)}100%{opacity:1;transform:none}}
-.empty,.msg{text-align:center;color:#8a7378;padding:40px 16px;background:#fff;border:1px dashed #e3c7ce;border-radius:16px;margin:10px 0}
-.msg.err{color:#8a3d4c}
-.foot{text-align:center;font-size:.76rem;color:#8a7378;margin-top:24px}
+/* papan tulis */
+main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;width:100%;margin:0 auto;padding:0 12px calc(8px + env(safe-area-inset-bottom,0px))}
+.board{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;border-radius:12px;padding:7px;
+  background:linear-gradient(145deg,#eef0f2,#bfc5ca 55%,#d9dde0);box-shadow:0 14px 34px rgba(30,0,10,.45),inset 0 0 0 1px rgba(255,255,255,.7)}
+.surface{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;border-radius:5px;padding:6px 10px 12px;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.75) 38%,rgba(255,255,255,0) 46%),linear-gradient(180deg,#fdfdfb,#f4f5f2);box-shadow:inset 0 2px 8px rgba(0,0,0,.18)}
+.surface:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 70% 110%,rgba(120,120,110,.12),transparent 55%)}
+.head{position:relative;z-index:1;flex:none;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding:2px 4px 6px;font-family:var(--hand)}
+.head .t{position:relative;font-weight:700;font-size:clamp(1.3rem,6vw,1.9rem);line-height:1;color:var(--marker);transform:rotate(-1.5deg);white-space:nowrap}
+.head .t svg{position:absolute;left:0;bottom:-9px;width:100%;height:9px;overflow:visible}
+.head .d{font-weight:700;font-size:clamp(1.05rem,4.6vw,1.45rem);line-height:1;color:var(--blue);transform:rotate(2deg);white-space:nowrap;display:flex;align-items:center;gap:4px}
+.dd{position:absolute;z-index:0;pointer-events:none;overflow:visible}
+.dd *{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:3}
+
+#grid{position:relative;z-index:1;flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:20px 14px;padding:12px 16px 2px}
+@media (min-aspect-ratio:13/10){#grid{grid-template-columns:repeat(4,1fr);grid-template-rows:1fr;gap:14px 20px}}
+#grid>*{min-width:0;min-height:0}
+.pol{position:relative;display:flex;flex-direction:column;width:100%;height:100%;text-align:left;background:#fff;padding:6px 6px 4px;border-radius:3px;
+  box-shadow:0 1px 2px rgba(0,0,0,.25),0 8px 16px rgba(60,20,30,.22);transform:rotate(var(--r,0deg));transition:transform .2s;animation:land .5s cubic-bezier(.2,.9,.3,1.15) both;animation-delay:calc(var(--k,0)*55ms)}
+.pol:hover{transform:rotate(0deg) translateY(-3px)}
+.pol .im{position:relative;flex:1;min-height:0;display:block;overflow:hidden;background:#ead9dd;border-radius:2px}
+.pol img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}
+.pol img.ok{opacity:1}
+.pol .by{flex:none;display:block;font:700 clamp(1rem,4.4vw,1.2rem)/1.15 var(--hand);color:#3a2a2e;text-align:center;padding:3px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pol.new{animation:pop .75s cubic-bezier(.2,.9,.3,1.25) both}
+.pin{position:absolute;z-index:2;left:50%;top:-9px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff9,transparent 38%),var(--pc,#800020);box-shadow:0 3px 5px rgba(0,0,0,.35)}
+.tape{position:absolute;z-index:2;top:-9px;left:50%;width:64px;height:22px;margin-left:-32px;background:rgba(240,205,120,.78);transform:rotate(var(--tr,-4deg));box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.tape:before,.tape:after{content:"";position:absolute;top:0;bottom:0;width:4px;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.5) 3px 5px)}
+.tape:before{left:0}.tape:after{right:0}
+.blank{width:100%;height:100%;border:2.5px dashed rgba(128,0,32,.28);border-radius:4px;display:grid;place-items:center;text-align:center;font:700 1.1rem/1.1 var(--hand);color:rgba(128,0,32,.45);padding:8px;transform:rotate(var(--r,0deg))}
+.blank span{display:block;font-size:2rem;margin-bottom:2px}
+@keyframes land{0%{opacity:0;transform:translateY(18px) rotate(calc(var(--r,0deg) - 4deg)) scale(.94)}100%{opacity:1;transform:rotate(var(--r,0deg))}}
+@keyframes pop{0%{opacity:0;transform:scale(.7) rotate(-6deg)}100%{opacity:1;transform:rotate(var(--r,0deg))}}
+#grid.nx>*{animation-name:slidein-r}
+#grid.pv>*{animation-name:slidein-l}
+@keyframes slidein-r{0%{opacity:0;transform:translateX(34px) rotate(var(--r,0deg))}100%{opacity:1;transform:rotate(var(--r,0deg))}}
+@keyframes slidein-l{0%{opacity:0;transform:translateX(-34px) rotate(var(--r,0deg))}100%{opacity:1;transform:rotate(var(--r,0deg))}}
+
+.heart{position:absolute;z-index:3;left:50%;top:50%;width:38px;height:38px;margin:-19px 0 0 -19px;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.3))}
+
+.note{position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-2deg);width:min(86%,320px);text-align:center;background:#fff8c8;padding:16px 14px;font:700 1.25rem/1.2 var(--hand);color:#5a3a2a;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.note.err{background:#ffe0e4;color:#8a1f3a}
+.note small{display:block;font:400 .78rem/1.35 Poppins,sans-serif;margin-top:6px;opacity:.8}
+
+/* nampan spidol = pager */
+.tray{flex:none;position:relative;align-self:center;width:84%;max-width:560px;height:34px;margin-top:-1px;border-radius:0 0 12px 12px;display:flex;align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(180deg,#aeb5ba,#d3d7da 40%,#9ca4aa);box-shadow:0 10px 18px rgba(30,0,10,.35),inset 0 1px 0 rgba(255,255,255,.6)}
+.pgb{width:30px;height:26px;border-radius:99px;background:#fff;color:var(--wine);font-size:1.15rem;line-height:1;display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.pgb:disabled{opacity:.35;cursor:default}
+.pgb:not(:disabled):active{transform:scale(.92)}
+.pg{font:700 1.15rem/1 var(--hand);color:#2e3438;min-width:64px;text-align:center}
+.pen{position:absolute;bottom:14px;height:11px;border-radius:5px 3px 3px 5px;box-shadow:0 2px 3px rgba(0,0,0,.3)}
+.pen:after{content:"";position:absolute;right:-6px;top:2px;border-left:7px solid #333;border-top:3.5px solid transparent;border-bottom:3.5px solid transparent}
+.pen.a{left:8%;width:46px;background:linear-gradient(180deg,#c43b5a,#800020 60%,#5a0016);transform:rotate(-5deg)}
+.pen.b{left:calc(8% + 10px);width:42px;bottom:7px;background:linear-gradient(180deg,#4b86d4,#2b5fa8 60%,#1e437a);transform:rotate(3deg)}
+.eraser{position:absolute;right:8%;bottom:6px;width:40px;height:16px;border-radius:3px;background:linear-gradient(180deg,#3a3f44 0 38%,#f1e7d0 38%);box-shadow:0 2px 3px rgba(0,0,0,.3);transform:rotate(2deg)}
+@media(max-width:380px){.pen.b{display:none}.pen.a{left:5%}.eraser{right:5%}}
 
 /* lightbox */
 #lb{position:fixed;inset:0;z-index:50;background:rgba(14,4,8,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:pan-y}
@@ -60,19 +97,6 @@ main{max-width:1200px;margin:0 auto;padding:18px 12px 60px}
 #lbx{top:calc(8px + env(safe-area-inset-top,0px));right:10px;z-index:3}
 #lbp{left:8px;top:50%;margin-top:-24px;z-index:3}#lbn{right:8px;top:50%;margin-top:-24px;z-index:3}
 
-/* MODE LAYAR (?tv=1): slideshow untuk layar/proyektor resepsi */
-body.tv{background:#0e0408;overflow:hidden;cursor:none}
-body.tv header,body.tv main,body.tv #lb{display:none!important}
-#tv{position:fixed;inset:0;background:#0e0408;color:#fff;display:none}
-body.tv #tv{display:block}
-#tv .sl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 1.2s}
-#tv .sl.on{opacity:1}
-#tv .blur{position:absolute;inset:-5%;background-size:cover;background-position:center;filter:blur(40px) brightness(.5)}
-#tv .sl img{position:relative;max-width:92vw;max-height:84vh;border:10px solid #fff;border-bottom-width:46px;border-radius:3px;box-shadow:0 20px 70px #000;transform:rotate(var(--r,0deg))}
-#tv .cap{position:absolute;left:0;right:0;bottom:3.5vh;text-align:center;font:italic 500 clamp(1rem,2.4vw,1.8rem) "Playfair Display",serif;text-shadow:0 2px 12px #000}
-#tv .tag{position:absolute;left:28px;top:22px;font:400 clamp(1.2rem,2.6vw,2rem) Italiana,serif;letter-spacing:.06em;opacity:.9;text-shadow:0 2px 10px #000;z-index:2}
-#tv .qr{position:absolute;right:28px;top:22px;font-size:clamp(.7rem,1.4vw,1rem);opacity:.85;text-align:right;z-index:2;text-shadow:0 2px 10px #000}
-#tv .none{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:400 clamp(1.4rem,3vw,2.4rem) Italiana,serif;padding:20px}
 
 /* Pemindai QR tertanam di halaman Momen */
 #qrScanOverlay{position:fixed;inset:0;z-index:100;background:rgba(20,5,10,.88);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
@@ -88,20 +112,15 @@ body.tv #tv{display:block}
 .qr-status{text-align:center;font-size:.83rem;min-height:2.7em;margin:12px 0 0;color:#765d63}
 .qr-status.error{color:#a11f3d}
 body.qr-scanner-open{overflow:hidden}
+
 </style>
 </head>
 <body>
 
-<header>
-  <p class="kick">Pernikahan</p>
-  <h1>Momen Tamu</h1>
-  <p class="sub">Foto-foto dari disposable camera para tamu Vincensius &amp; Devi</p>
-  <div class="acts">
-    <a class="pill solid" id="takePhoto" href="kamera.html">📷 Ambil Foto</a>
-    <a class="pill" href="?tv=1">🖥️ Mode Layar</a>
-  </div>
-  <span class="count" id="count" hidden></span>
-</header>
+<div class="top">
+  <div><small>Pernikahan</small><h1>Momen Tamu</h1><span class="count" id="count" hidden></span></div>
+  <a class="pill" id="takePhoto" href="kamera.html">📷 Ambil Foto</a>
+</div>
 
 <div id="qrScanOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="qrScanTitle">
   <section class="qr-scan-panel">
@@ -115,10 +134,32 @@ body.qr-scanner-open{overflow:hidden}
 </div>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 
+
 <main>
-  <div id="note"></div>
-  <div id="grid"></div>
-  <p class="foot" id="foot" hidden>Galeri diperbarui otomatis.</p>
+  <div class="board">
+    <div class="surface" id="surface">
+      <!-- hiasan spidol di tepi papan (di belakang foto) -->
+      <svg class="dd" style="left:1.5%;top:24%;width:22px;height:22px;transform:rotate(-12deg)" viewBox="0 0 40 40"><path d="M20 4l4.6 10.4L36 15.6l-8.4 7.6 2.4 11L20 28.2 10 34.2l2.4-11L4 15.6l11.4-1.2z" stroke="#c8962e"/></svg>
+      <svg class="dd" style="left:1.5%;top:48%;width:20px;height:20px;" viewBox="0 0 30 30"><path d="M15 3v24M3 15h24M7 7l16 16M23 7L7 23" stroke="#2f7d52"/></svg>
+      <svg class="dd" style="left:1.5%;top:70%;width:22px;height:22px;transform:rotate(-10deg)" viewBox="0 0 40 40"><path d="M20 33C8 25 5 17 9 12c4-4 9-2 11 3 2-5 7-7 11-3 4 5 1 13-11 21z" stroke="#c43b5a"/></svg>
+      <svg class="dd" style="right:1.5%;top:30%;width:22px;height:22px;transform:rotate(10deg)" viewBox="0 0 40 40"><path d="M20 33C8 25 5 17 9 12c4-4 9-2 11 3 2-5 7-7 11-3 4 5 1 13-11 21z" stroke="#c43b5a"/></svg>
+      <svg class="dd" style="right:1.5%;top:54%;width:20px;height:20px;" viewBox="0 0 30 30"><path d="M15 3v24M3 15h24M7 7l16 16M23 7L7 23" stroke="#2b5fa8"/></svg>
+      <svg class="dd" style="right:1.5%;top:76%;width:22px;height:22px;transform:rotate(14deg)" viewBox="0 0 40 40"><path d="M20 4l4.6 10.4L36 15.6l-8.4 7.6 2.4 11L20 28.2 10 34.2l2.4-11L4 15.6l11.4-1.2z" stroke="#c8962e"/></svg>
+      <div class="head">
+        <div class="t">#DeVinitelyInLove<svg viewBox="0 0 100 9" preserveAspectRatio="none"><path d="M1 5C12 0 14 9 25 4s13 5 24 0 13 5 24 0 13 4 26 1" fill="none" stroke="#800020" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+        <div class="d">26·12·26 <svg width="18" height="18" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 33C8 25 5 17 9 12c4-4 9-2 11 3 2-5 7-7 11-3 4 5 1 13-11 21z" fill="none" stroke="#c43b5a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div id="grid"></div>
+      <svg class="heart" id="heart" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 35C7 26 4 17 8.5 12c4.4-4.6 9.6-2.2 11.5 3 1.9-5.2 7.1-7.6 11.5-3C36 17 33 26 20 35z" fill="#c43b5a" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/></svg>
+      <div class="note" id="note" hidden></div>
+    </div>
+  </div>
+  <div class="tray">
+    <i class="pen a"></i><i class="pen b"></i><i class="eraser"></i>
+    <button class="pgb" id="pgp" aria-label="Foto lebih baru">‹</button>
+    <span class="pg" id="pg">1 / 1</span>
+    <button class="pgb" id="pgn" aria-label="Foto lebih lama">›</button>
+  </div>
 </main>
 
 <div id="lb" hidden>
@@ -129,7 +170,6 @@ body.qr-scanner-open{overflow:hidden}
   <div class="cap"><span id="lbc"></span><small id="lbt"></small><a id="lbd" href="#" target="_blank" rel="noopener">⬇ Unduh</a></div>
 </div>
 
-<div id="tv"></div>
 
 <script>
 /* Tamu baru memindai QR langsung dari halaman Momen; tamu lama langsung ke kamera. */
@@ -252,9 +292,9 @@ body.qr-scanner-open{overflow:hidden}
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
   var URL_ = window.CAM_URL || "";
-  var TV = new URLSearchParams(location.search).get("tv") === "1";
-  var POLL = TV ? 12000 : 15000;
-  var items = [], seen = {}, first = true;
+  var PER = 4, POLL = 15000;
+  var items = [], seen = {}, loaded = false, page = 0, shown = "", anchor = "";
+  var PINS = ["#800020", "#c8962e", "#2b5fa8", "#2f7d52"];
 
   function thumb(id, w) { return "https://lh3.googleusercontent.com/d/" + id + "=w" + w; }
   function alt(id, w) { return "https://drive.google.com/thumbnail?id=" + id + "&sz=w" + w; }
@@ -266,7 +306,6 @@ body.qr-scanner-open{overflow:hidden}
     };
     img.src = thumb(id, w);
   }
-  function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
   function ago(t) {
     var s = Math.max(0, (Date.now() - t) / 1000);
     if (s < 60) return "baru saja";
@@ -274,60 +313,101 @@ body.qr-scanner-open{overflow:hidden}
     if (s < 86400) return Math.floor(s / 3600) + " jam lalu";
     return new Date(t).toLocaleDateString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
   }
+  function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
+  function pages() { return Math.max(1, Math.ceil(items.length / PER)); }
 
   /* ---------- ambil data ---------- */
-  function setNote(html, cls) { $("note").innerHTML = html ? '<div class="' + (cls || "msg") + '">' + html + "</div>" : ""; }
+  function setNote(html, cls) {
+    var n = $("note");
+    if (!html) { n.hidden = true; return; }
+    n.className = "note" + (cls ? " " + cls : ""); n.innerHTML = html; n.hidden = false;
+  }
   function fetchList() {
-    if (!URL_) { setNote("Galeri belum disambungkan. Isi <b>CAM_URL</b> di <code>js/camera-config.js</code> (lihat SETUP-KAMERA.txt)."); return; }
+    if (!URL_) { setNote("Galeri belum disambungkan<small>Isi CAM_URL di js/camera-config.js (lihat SETUP-KAMERA.txt).</small>", "err"); return; }
     fetch(URL_).then(function (r) { return r.json(); }).then(function (j) {
       if (!j || !j.ok) throw new Error("bad");
-      setNote("");
       update(j.items || [], j.total || 0);
     }).catch(function () {
-      if (first) setNote("Gagal memuat foto. Periksa sinyal, lalu muat ulang halaman.", "msg err");
-    }).then(function () { first = false; });
+      if (!loaded) setNote("Gagal memuat foto<small>Periksa sinyal, lalu muat ulang halaman.</small>", "err");
+    });
   }
 
-  /* ---------- galeri ---------- */
+  /* ---------- papan ---------- */
   function update(list, total) {
-    var fresh = list.filter(function (x) { return !seen[x.i]; });
-    var firstLoad = !Object.keys(seen).length;
+    var fresh = {};
+    list.forEach(function (x) { if (loaded && !seen[x.i]) fresh[x.i] = 1; });
     list.forEach(function (x) { seen[x.i] = 1; });
     items = list;
-    if (TV) { tvUpdate(fresh, firstLoad); return; }
-
     $("count").hidden = !total; $("count").textContent = "📷 " + total + " foto";
-    $("foot").hidden = !total;
-    var g = $("grid");
-    if (!list.length) { g.innerHTML = ""; setNote("Belum ada foto. Jadilah yang pertama memotret! 📷", "empty"); return; }
-    if (firstLoad) {
-      g.innerHTML = "";
-      list.forEach(function (x) { g.appendChild(card(x, false)); });
-    } else {   // foto baru muncul di paling atas
-      fresh.slice().reverse().forEach(function (x) { g.insertBefore(card(x, true), g.firstChild); });
-    }
+    if (page > 0 && anchor) { var k = idx(anchor); if (k >= 0) page = Math.floor(k / PER); }   // tetap di foto yang sama walau ada foto baru
+    if (page >= pages()) page = pages() - 1;
+    loaded = true;
+    render(fresh, "");
   }
-  function card(x, isNew) {
+
+  function cell(x, k, isNew) {
     var b = document.createElement("button");
-    b.className = "ph" + (isNew ? " new" : "");
     b.type = "button";
-    b.innerHTML = '<span class="im"><img loading="lazy" decoding="async"></span><span class="by"></span>';
-    var img = b.querySelector("img");
-    img.alt = "Foto oleh " + x.n;                    // lewat DOM (bukan HTML string) supaya nama tamu tidak bisa menyisipkan kode
-    b.querySelector(".by").textContent = x.n;
-    img.addEventListener("load", function () {   // ikuti rasio asli foto
-      if (img.naturalWidth && img.naturalHeight) b.querySelector(".im").style.setProperty("--ar", img.naturalWidth + "/" + img.naturalHeight);
+    b.className = "pol" + (isNew ? " new" : "");
+    var h = hash(x.i);
+    b.style.setProperty("--r", (((h % 61) - 30) / 10).toFixed(1) + "deg");   // miring -3° .. +3°, tetap untuk foto yang sama
+    b.style.setProperty("--k", k);
+    var deco = document.createElement("i");
+    if (k === 1 || k === 2) { deco.className = "tape"; deco.style.setProperty("--tr", (k === 1 ? 5 : -4) + "deg"); }
+    else { deco.className = "pin"; deco.style.setProperty("--pc", PINS[h % PINS.length]); }
+    var im = document.createElement("span"); im.className = "im";
+    var img = document.createElement("img"); img.decoding = "async"; img.alt = "Foto oleh " + x.n;   // lewat DOM supaya nama tamu tidak bisa menyisipkan kode
+    im.appendChild(img);
+    var by = document.createElement("span"); by.className = "by"; by.textContent = x.n;
+    b.appendChild(deco); b.appendChild(im); b.appendChild(by);
+    loadImg(img, x.i, 600, function () {   // foto sudah dihapus dari Drive
+      items = items.filter(function (y) { return y.i !== x.i; });
+      if (page >= pages()) page = pages() - 1;
+      shown = ""; render({}, "");
     });
-    loadImg(img, x.i, 600, function () { if (b.parentNode) b.parentNode.removeChild(b); });
     b.addEventListener("click", function () { openLb(x.i); });
     return b;
   }
+  function blank(k) {
+    var d = document.createElement("div");
+    d.className = "blank"; d.style.setProperty("--r", (k % 2 ? 1.6 : -1.8) + "deg");
+    d.innerHTML = "<div><span>📷</span>menunggu<br>fotomu</div>";
+    return d;
+  }
+  function render(fresh, dir) {
+    var slice = items.slice(page * PER, page * PER + PER);
+    if (slice.length) anchor = slice[0].i;
+    $("pg").textContent = (page + 1) + " / " + pages();
+    $("pgp").disabled = page <= 0; $("pgn").disabled = page >= pages() - 1;
+    $("pgp").style.visibility = $("pgn").style.visibility = pages() > 1 ? "visible" : "hidden";
+    var key = page + "|" + slice.map(function (x) { return x.i; }).join(",");
+    if (loaded) setNote(items.length ? "" : "Belum ada foto<small>Jadilah yang pertama memotret! 📷</small>");
+    if (key === shown) return;
+    shown = key;
+    var g = $("grid");
+    g.className = dir; g.innerHTML = "";
+    for (var k = 0; k < PER; k++) g.appendChild(slice[k] ? cell(slice[k], k, !!fresh[slice[k].i]) : blank(k));
+    $("heart").style.display = slice.length < 2 ? "none" : "block";
+  }
+  function go(d) {
+    var n = page + d;
+    if (n < 0 || n >= pages()) return;
+    page = n; shown = ""; render({}, d > 0 ? "nx" : "pv");
+  }
+  $("pgp").addEventListener("click", function () { go(-1); });
+  $("pgn").addEventListener("click", function () { go(1); });
+  var sx = 0, sy = 0;
+  $("surface").addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  $("surface").addEventListener("touchend", function (e) {
+    var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);   // geser kiri = foto lebih lama
+  }, { passive: true });
 
   /* ---------- lightbox ---------- */
   var cur = -1;
   function idx(id) { for (var i = 0; i < items.length; i++) if (items[i].i === id) return i; return -1; }
-  function openLb(id) { cur = idx(id); if (cur < 0) return; $("lb").hidden = false; document.body.style.overflow = "hidden"; showLb(); }
-  function closeLb() { $("lb").hidden = true; document.body.style.overflow = ""; $("lbi").removeAttribute("src"); }
+  function openLb(id) { cur = idx(id); if (cur < 0) return; $("lb").hidden = false; showLb(); }
+  function closeLb() { $("lb").hidden = true; $("lbi").removeAttribute("src"); }
   function showLb() {
     var x = items[cur]; if (!x) return;
     var im = $("lbi"); im.style.opacity = .35;
@@ -344,60 +424,25 @@ body.qr-scanner-open{overflow:hidden}
   $("lbn").addEventListener("click", function () { step(1); });
   $("lb").addEventListener("click", function (e) { if (e.target === $("lb") || e.target.classList.contains("stage")) closeLb(); });
   document.addEventListener("keydown", function (e) {
-    if ($("lb").hidden) return;
-    if (e.key === "Escape") closeLb(); else if (e.key === "ArrowLeft") step(-1); else if (e.key === "ArrowRight") step(1);
+    if (!$("lb").hidden) {
+      if (e.key === "Escape") closeLb(); else if (e.key === "ArrowLeft") step(-1); else if (e.key === "ArrowRight") step(1);
+    } else if ($("qrScanOverlay").hidden) {
+      if (e.key === "ArrowLeft") go(-1); else if (e.key === "ArrowRight") go(1);
+    }
   });
-  var sx = 0;
-  $("lb").addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
+  var lx = 0;
+  $("lb").addEventListener("touchstart", function (e) { lx = e.touches[0].clientX; }, { passive: true });
   $("lb").addEventListener("touchend", function (e) {
-    var dx = e.changedTouches[0].clientX - sx;
+    var dx = e.changedTouches[0].clientX - lx;
     if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
   }, { passive: true });
 
-  /* ---------- MODE LAYAR ---------- */
-  var tvEl = $("tv"), tvIdx = 0, tvTimer = 0, tvShown = "", tvQueue = [];
-  function tvBuild() {
-    tvEl.innerHTML = '<div class="tag">Vincensius &amp; Devi</div><div class="qr">📷 Ambil fotomu di<br><b>' + esc(location.host + "/kamera.html") + '</b></div><div class="none" id="tvNone">Menunggu foto pertama dari para tamu… 📷</div>';
-  }
-  function tvShow(x) {
-    if (!x) return;
-    tvShown = x.i;
-    var none = $("tvNone"); if (none) none.remove();
-    var s = document.createElement("div"); s.className = "sl";
-    s.style.setProperty("--r", (Math.random() * 3 - 1.5).toFixed(1) + "deg");
-    s.innerHTML = '<div class="blur"></div><img alt=""><div class="cap">📷 ' + esc(x.n) + "</div>";
-    var img = s.querySelector("img"), blur = s.querySelector(".blur");
-    blur.style.backgroundImage = "url(" + thumb(x.i, 400) + ")";
-    var done = function () {
-      tvEl.appendChild(s); void s.offsetWidth; s.classList.add("on");
-      var olds = tvEl.querySelectorAll(".sl");
-      for (var i = 0; i < olds.length - 1; i++) (function (o) { o.classList.remove("on"); setTimeout(function () { o.remove(); }, 1300); })(olds[i]);
-    };
-    img.onload = done;
-    img.onerror = function () { img.onerror = done; img.src = alt(x.i, 1600); };
-    img.src = thumb(x.i, 1600);
-  }
-  function tvNext() {
-    clearTimeout(tvTimer);
-    var x = tvQueue.length ? tvQueue.shift() : items[tvIdx++ % Math.max(1, items.length)];   // foto baru didahulukan
-    tvShow(x);
-    tvTimer = setTimeout(tvNext, 7000);
-  }
-  function tvUpdate(fresh, firstLoad) {
-    if (!items.length) return;
-    if (firstLoad) { tvIdx = 0; tvNext(); return; }
-    fresh.slice().reverse().forEach(function (x) { tvQueue.push(x); });
-    if (fresh.length && tvQueue.length === fresh.length) tvNext();   // tampil segera bila belum ada antrean
-  }
-
   /* ---------- jalan ---------- */
-  if (TV) { document.body.classList.add("tv"); tvBuild(); }
+  setNote("Memuat foto…");
+  render({}, "");
   fetchList();
-  var poll = setInterval(function () { if (!document.hidden) fetchList(); }, POLL);
+  setInterval(function () { if (!document.hidden) fetchList(); }, POLL);
   document.addEventListener("visibilitychange", function () { if (!document.hidden) fetchList(); });
-  if (TV) document.addEventListener("dblclick", function () {   // klik dua kali = layar penuh
-    if (document.fullscreenElement) document.exitFullscreen(); else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-  });
 })();
 </script>
 </body>
