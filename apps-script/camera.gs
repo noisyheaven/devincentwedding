@@ -137,6 +137,9 @@ function list_() {
 }
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.clock) {   // hanya jam & waktu tutup (tanpa kode): dipakai kamera.html sebelum menampilkan layar
+    return json_({ ok: true, closed: closed_(), closeAt: closeMs_(), now: Date.now() });
+  }
   var tk = e && e.parameter && e.parameter.tk;
   if (tk) {   // cek sisa jatah satu tamu (sekaligus memastikan kode acara benar)
     if (!codeOk_(e.parameter.k)) return json_({ ok: false, err: "denied" });
