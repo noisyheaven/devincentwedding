@@ -107,8 +107,8 @@
     document.body.classList.remove("qrs-open");
   }
   function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
-  function wrong() {   // QR salah: kamera bergetar + merah + getar HP
-    say("QR terbaca, tetapi bukan QR kamera acara. Pindai QR kamera yang benar.", true);
+  function wrong(msg) {   // QR salah: kamera bergetar + merah + getar HP
+    say(msg || "QR terbaca, tetapi bukan QR kamera acara. Pindai QR kamera yang benar.", true);
     if (badLock) return;
     badLock = true;
     buzz([70, 40, 70]);
@@ -117,10 +117,42 @@
     setTimeout(function () { if (!finishing) box.className = "v"; }, 700);
     setTimeout(function () { badLock = false; }, 1100);   // QR yang sama tidak mengulang getaran terus-menerus
   }
+  var rejected = {};   // kode yang baru ditolak server: jangan diperiksa ulang tiap frame
+  var BAD_CODE = "Kode di QR itu salah. Pindai QR resmi di lokasi acara, atau tanyakan kepada panitia.";
+  function resume() { if (stream && !finishing) { scanning = true; raf = requestAnimationFrame(tick); } }
+  function verify(code) {   // true/false; lempar error bila tidak bisa menghubungi server
+    var u = opts && opts.verifyUrl;
+    if (!u) return Promise.resolve(true);
+    return fetch(u + "?tk=probe" + Date.now().toString(36) + "&k=" + encodeURIComponent(code))
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (j && j.err === "denied") return false; if (j && j.ok) return true; throw new Error("bad"); });
+  }
   function found(raw) {   // true bila QR kamera acara
     var code = parse(raw);
     if (!code) { wrong(); return false; }
     if (finishing) return true;
+    if (rejected[code] && Date.now() - rejected[code] < 4000) { wrong(BAD_CODE); return false; }
+    finishing = true; scanning = false;
+    if (opts && opts.verifyUrl) {   // periksa kode ke server DULU, baru animasi sukses
+      box.className = "v";
+      say("Memeriksa kode…");
+      verify(code).then(function (okc) {
+        if (!finishing || el.hidden) return;
+        if (okc) { success(code); return; }
+        rejected[code] = Date.now(); finishing = false;
+        wrong(BAD_CODE); resume();
+      }).catch(function () {
+        if (!finishing || el.hidden) return;
+        finishing = false;
+        say("Gagal memeriksa kode. Periksa sinyal, lalu arahkan QR lagi.", true);
+        setTimeout(resume, 1200);
+      });
+      return true;
+    }
+    success(code);
+    return true;
+  }
+  function success(code) {
     finishing = true; scanning = false;
     var cb = opts && opts.onCode;
     buzz(45);
@@ -130,7 +162,6 @@
       el.classList.add("out");
       setTimeout(function () { close(); if (cb) cb(code); }, 400);
     }, 600);
-    return true;
   }
 
   function tick(t) {
