@@ -46,6 +46,17 @@ LANGKAH 4 - UJI SEBELUM HARI H (wajib)
   - Habiskan 15 foto: harus muncul layar "Film habis!".
   - Hapus foto uji dari Drive (dan barisnya dari sheet "Foto") sebelum hari H.
 
+KAMERA DITUTUP OTOMATIS (26 Desember 2026, pukul 21.00 WIB)
+  Di camera.gs: CLOSE_AT = "2026-12-26T21:00:00+07:00". Setelah waktu itu server menolak foto baru, dan
+  kamera.html otomatis menampilkan layar "Kamera sudah ditutup" (juga bagi tamu yang sedang memotret).
+  Jam yang dipakai adalah jam server Google, bukan jam HP, jadi tidak bisa diakali.
+  GRACE_MIN = 120: foto yang dipotret SEBELUM 21.00 tetapi baru terkirim sesudahnya (sinyal jelek) tetap
+  diterima sampai 23.00. Ubah ke 0 bila ingin benar-benar tutup tepat 21.00.
+  Galeri (momen.html) tetap bisa dilihat.
+  UJI COBA: Project Settings > Script Properties > tambah property CLOSE_AT dengan nilai waktu lain,
+  mis. 2026-10-25T19:30:00+07:00 (sudah lewat = langsung tutup). HAPUS property itu setelah uji.
+  Setiap kali camera.gs diubah: Deploy > Manage deployments > Edit > New version.
+
 MEMBUANG FOTO YANG KURANG BAGUS
   Cara termudah: buka folder "Disposable Camera - Vincensius & Devi" di Google Drive, lihat
   fotonya, lalu HAPUS file yang tidak diinginkan. Dalam +-30-40 detik foto itu hilang dari
