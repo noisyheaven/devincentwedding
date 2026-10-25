@@ -99,21 +99,6 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
 #lbp{left:8px;top:50%;margin-top:-24px;z-index:3}#lbn{right:8px;top:50%;margin-top:-24px;z-index:3}
 
 
-/* Pemindai QR tertanam di halaman Momen */
-#qrScanOverlay{position:fixed;inset:0;z-index:100;background:rgba(20,5,10,.88);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
-#qrScanOverlay[hidden]{display:none!important}
-.qr-scan-panel{width:min(100%,460px);max-height:calc(100dvh - 32px);overflow:auto;background:#fff9fa;color:var(--ink);border-radius:20px;padding:18px;box-shadow:0 20px 70px #0006}
-.qr-scan-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.qr-scan-head h2{font:400 1.8rem/1.1 Italiana,serif;color:var(--wine)}
-#qrScanClose{width:42px;height:42px;border-radius:50%;background:#f2e1e5;color:var(--wine);font-size:1.35rem}
-#qrScanVideo{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#24151a;border-radius:12px}
-.qr-scan-actions{display:grid;gap:9px;margin-top:12px}
-.qr-scan-actions button{min-height:46px;border-radius:99px;padding:10px 16px;background:var(--wine);color:white}
-.qr-scan-actions button:disabled{opacity:.6}
-.qr-status{text-align:center;font-size:.83rem;min-height:2.7em;margin:12px 0 0;color:#765d63}
-.qr-status.error{color:#a11f3d}
-body.qr-scanner-open{overflow:hidden}
-
 </style>
 </head>
 <body>
@@ -122,19 +107,6 @@ body.qr-scanner-open{overflow:hidden}
   <div><h1>Momen Tamu</h1><span class="count" id="count" hidden></span></div>
   <a class="pill" id="takePhoto" href="kamera.html">📷 Ambil Foto</a>
 </div>
-
-<div id="qrScanOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="qrScanTitle">
-  <section class="qr-scan-panel">
-    <div class="qr-scan-head"><h2 id="qrScanTitle">Pindai QR Akses Kamera</h2><button id="qrScanClose" type="button" aria-label="Tutup pemindai">✕</button></div>
-    <p style="font-size:.86rem;margin:0 0 12px">Arahkan kamera ke QR terbaru pada kartu/meja acara. Kode sudah ada di dalam QR, tidak perlu memasukkannya lagi.</p>
-    <video id="qrScanVideo" playsinline muted aria-label="Pratinjau kamera pemindai QR"></video>
-    <canvas id="qrScanCanvas" hidden></canvas>
-    <div class="qr-scan-actions"><button id="qrScanStart" type="button">Buka Kamera &amp; Pindai QR</button><button id="qrScanSwitch" type="button" hidden>Kamera Depan / Belakang</button></div>
-    <p id="qrScanStatus" class="qr-status" role="status" aria-live="polite">Memulai pemindai…</p>
-  </section>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-
 
 <main>
   <div class="board">
@@ -172,119 +144,31 @@ body.qr-scanner-open{overflow:hidden}
 </div>
 
 
+<script src="js/qrscan.js"></script>
 <script>
-/* Tamu baru memindai QR langsung dari halaman Momen; tamu lama langsung ke kamera. */
+/* Tamu baru memindai QR (kamera atau gambar unduhan); tamu lama langsung ke kamera. */
 (function () {
   var btn = document.getElementById("takePhoto");
   if (!btn) return;
-  try {
-    var code = localStorage.getItem("dc_k") || "";
-    if (/^[A-Za-z0-9_-]{1,40}$/.test(code)) {
-      btn.href = "kamera.html?k=" + encodeURIComponent(code);
-      btn.setAttribute("aria-label", "Lanjut mengambil foto");
-    } else {
-      btn.href = "#scanQr";
-      btn.addEventListener("click", function (e) {
-        e.preventDefault();
-        openScanner();
-      });
-    }
-  } catch (e) {
+  function scan(e) {
+    if (e) e.preventDefault();
+    QRScan.open({ title: "Pindai QR Kamera Acara", onCode: function (code) {
+      try { localStorage.setItem("dc_k", code); } catch (x) {}
+      var cv = document.createElement("div");   // layar anggur memudar masuk, lalu pindah ke kamera
+      cv.style.cssText = "position:fixed;inset:0;z-index:2000;opacity:0;transition:opacity .35s ease-in;background:radial-gradient(circle at 20% 10%,#a8334f 0,transparent 55%),linear-gradient(170deg,#800020,#55001a 70%,#2a0310)";
+      document.body.appendChild(cv); void cv.offsetWidth; cv.style.opacity = "1";
+      setTimeout(function () { location.href = "kamera.html?k=" + encodeURIComponent(code); }, 360);
+    } });
+  }
+  var code = "";
+  try { code = localStorage.getItem("dc_k") || ""; } catch (e) {}
+  if (/^[A-Za-z0-9_-]{1,40}$/.test(code)) {
+    btn.href = "kamera.html?k=" + encodeURIComponent(code);
+    btn.setAttribute("aria-label", "Lanjut mengambil foto");
+  } else {
     btn.href = "#scanQr";
-    btn.addEventListener("click", function (ev) { ev.preventDefault(); openScanner(); });
+    btn.addEventListener("click", scan);
   }
-
-  var overlay = document.getElementById("qrScanOverlay");
-  var video = document.getElementById("qrScanVideo");
-  var canvas = document.getElementById("qrScanCanvas");
-  var ctx = canvas.getContext("2d", { willReadFrequently: true });
-  var status = document.getElementById("qrScanStatus");
-  var startBtn = document.getElementById("qrScanStart");
-  var switchBtn = document.getElementById("qrScanSwitch");
-  var stream = null, scanning = false, frame = 0, facing = "environment";
-
-  function say(text, error) { status.textContent = text; status.className = error ? "qr-status error" : "qr-status"; }
-  function stopScanner() {
-    scanning = false;
-    if (frame) cancelAnimationFrame(frame);
-    frame = 0;
-    if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
-    stream = null;
-    video.srcObject = null;
-    startBtn.disabled = false;
-    startBtn.textContent = "Buka Kamera & Pindai QR";
-  }
-  function closeScanner() {
-    stopScanner();
-    overlay.hidden = true;
-    document.body.classList.remove("qr-scanner-open");
-  }
-  function openScanner() {
-    overlay.hidden = false;
-    document.body.classList.add("qr-scanner-open");
-    startCamera();
-  }
-  function continueToCamera(raw) {
-    var code = "";
-    try {
-      var value = String(raw || "").trim();
-      var url = new URL(value, location.href);
-      if (/^https?:$/i.test(url.protocol) || url.origin === location.origin) {
-        code = url.searchParams.get("k") || "";
-      }
-    } catch (e) {}
-    if (!/^[A-Za-z0-9_-]{1,40}$/.test(code)) {
-      say("QR tidak dikenali. Pindai QR Akses Kamera terbaru yang berisi kode acara.", true);
-      return;
-    }
-    try { localStorage.setItem("dc_k", code); } catch (e) {}
-    stopScanner();
-    location.href = "kamera.html?k=" + encodeURIComponent(code);
-  }
-  function tick() {
-    if (!scanning) return;
-    if (video.readyState >= video.HAVE_ENOUGH_DATA && video.videoWidth && video.videoHeight) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      var pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      var result = window.jsQR && window.jsQR(pixels.data, pixels.width, pixels.height, { inversionAttempts: "attemptBoth" });
-      if (result && result.data) { continueToCamera(result.data); if (!scanning) return; }
-    }
-    frame = requestAnimationFrame(tick);
-  }
-  async function startCamera() {
-    stopScanner();
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      say("Browser ini tidak mendukung kamera. Buka situs melalui HTTPS dan gunakan Safari terbaru di iPhone.", true);
-      return;
-    }
-    if (typeof window.jsQR !== "function") {
-      say("Pemindai QR belum termuat. Periksa koneksi internet lalu coba lagi.", true);
-      return;
-    }
-    try {
-      startBtn.disabled = true;
-      startBtn.textContent = "Meminta izin kamera…";
-      stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: facing }, width: { ideal: 1280 }, height: { ideal: 720 } } });
-      video.srcObject = stream;
-      await video.play();
-      scanning = true;
-      startBtn.textContent = "Memindai… arahkan ke QR";
-      switchBtn.hidden = false;
-      say("Arahkan kamera ke QR Akses Kamera terbaru. Kode di dalam QR akan terbaca otomatis.");
-      frame = requestAnimationFrame(tick);
-    } catch (e) {
-      stopScanner();
-      if (e && (e.name === "NotAllowedError" || e.name === "PermissionDeniedError")) say("Izin kamera ditolak. Izinkan Camera untuk situs ini di pengaturan Safari/iPhone lalu coba lagi.", true);
-      else say("Kamera tidak dapat dibuka. Pastikan situs memakai HTTPS dan tutup aplikasi lain yang sedang memakai kamera.", true);
-    }
-  }
-  document.getElementById("qrScanClose").addEventListener("click", closeScanner);
-  startBtn.addEventListener("click", startCamera);
-  switchBtn.addEventListener("click", function () { facing = facing === "environment" ? "user" : "environment"; startCamera(); });
-  overlay.addEventListener("click", function (e) { if (e.target === overlay) closeScanner(); });
-  window.addEventListener("pagehide", stopScanner);
 })();
 </script>
 <script src="js/camera-config.js"></script>
@@ -429,7 +313,7 @@ body.qr-scanner-open{overflow:hidden}
   document.addEventListener("keydown", function (e) {
     if (!$("lb").hidden) {
       if (e.key === "Escape") closeLb(); else if (e.key === "ArrowLeft") step(-1); else if (e.key === "ArrowRight") step(1);
-    } else if ($("qrScanOverlay").hidden) {
+    } else if (!window.QRScan || !QRScan.isOpen()) {
       if (e.key === "ArrowLeft") go(-1); else if (e.key === "ArrowRight") go(1);
     }
   });
