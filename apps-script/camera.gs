@@ -7,7 +7,7 @@
 
 var MAX_PER_GUEST = 15;          // jatah foto per perangkat/tamu
 var MAX_TOTAL = 3000;            // batas total foto (pengaman)
-var MAX_B64 = 2600000;           // batas ukuran satu foto (karakter base64, kira-kira 1,9 MB)
+var MAX_B64 = 14000000;          // batas ukuran satu foto (karakter base64, kira-kira 10 MB)
 var LIST_LIMIT = 600;            // jumlah foto terbaru yang ditampilkan di galeri
 var MAX_POSTS_PER_MIN = 80;      // semua tamu digabung
 var FOLDER_NAME = "Disposable Camera - Vincensius & Devi";
