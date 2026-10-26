@@ -6,7 +6,7 @@
 // Isi di editor Apps Script saja, jangan di-commit ke GitHub publik.
 // Alternatif tanpa menyentuh kode: Project Settings > Script Properties > property ACCESS_CODE
 // (dipakai bila nilai di bawah ini masih "GANTI_KODE_ACARA").
-var ACCESS_CODE = "dv261226";
+var ACCESS_CODE = "GANTI_KODE_ACARA";
 
 // KAMERA DITUTUP: setelah waktu ini foto baru ditolak server (jam server, tidak bisa diakali lewat jam HP).
 // Galeri (momen.html) tetap bisa dilihat. Format: tahun-bulan-tanggalTjam:menit:detik+07:00 (WIB).
