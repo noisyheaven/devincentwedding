@@ -135,7 +135,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
     <div class="big">📷</div>
     <h2 id="fbTitle">Buka kamera HP</h2>
     <p class="lead" id="fbMsg"></p>
-    <div class="film" style="display:inline-flex;margin-bottom:20px"><em>sisa<br>foto</em><span class="cnt">10</span></div>
+    <div class="film" style="display:inline-flex;margin-bottom:20px"><em>sisa<br>foto</em><span class="cnt">15</span></div>
     <div class="stack">
       <button class="pill" id="fbShoot">Ambil Foto</button>
       <button class="pill ghost" id="fbRetry" hidden>Coba kamera langsung lagi</button>
@@ -184,7 +184,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
-  var URL_ = window.CAM_URL || "", MAX = Number(window.CAM_MAX) || 10;
+  var URL_ = window.CAM_URL || "", MAX = Number(window.CAM_MAX) || 15;
   var LS = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
