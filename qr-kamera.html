@@ -63,7 +63,7 @@ button.main{background:var(--wine);color:#fff}
       <p class="names">Vincensius &amp; Devi</p>
       <p class="ttl">Disposable Camera</p>
       <div class="qr" id="qr1"></div>
-      <p class="how"><b>Scan</b> untuk memotret<br>15 foto per tamu 📷</p>
+      <b>Scan</b> untuk memotret<br><span id="maxTxt">15</span> foto per tamu 📷
       <p class="small" id="u1"></p>
       <div class="dl"><button data-q="qr1" data-n="qr-kamera">⬇ Unduh PNG</button></div>
     </div>
@@ -79,6 +79,7 @@ button.main{background:var(--wine);color:#fff}
   </div>
 </div>
 
+<script src="/js/camera-config.js"></script>
 <script src="/js/qrcode.js"></script>
 <script>
 (function () {
@@ -130,6 +131,7 @@ button.main{background:var(--wine);color:#fff}
       var a = document.createElement("a"); a.download = btn.dataset.n + ".png"; a.href = c.toDataURL("image/png"); a.click();
     });
   });
+  if (window.CAM_MAX) $("maxTxt").textContent = window.CAM_MAX;  
   gen();
 })();
 </script>
