@@ -6,7 +6,7 @@ FILE YANG TERLIBAT
   momen.html             galeri foto tamu (papan tulis, 4 foto per layar, geser untuk halaman lain)
   js/camera-config.js    alamat Apps Script (CAM_URL) dan jatah foto (CAM_MAX)
   apps-script/camera.gs  backend: menyimpan foto ke Google Drive
-  tools/qr-kamera.html   membuat & mencetak kartu QR
+  qr-kamera.html   membuat & mencetak kartu QR
   js/qrcode.js           pembuat QR (disimpan lokal, tanpa CDN)
 
 LANGKAH 1 - BACKEND (Google Apps Script)
@@ -31,7 +31,7 @@ LANGKAH 2 - HUBUNGKAN KE WEBSITE
   MAX_PER_GUEST di camera.gs (default 15). Upload ke GitHub, tunggu Cloudflare selesai deploy.
 
 LANGKAH 3 - QR
-  Buka https://(alamat-website-anda)/tools/qr-kamera.html, isi kolom "Kode acara" (sama dengan
+  Buka https://(alamat-website-anda)/qr-kamera.html, isi kolom "Kode acara" (sama dengan
   Script Property ACCESS_CODE), lalu klik Cetak atau Unduh PNG. Kode tertanam di dalam QR kamera (alamat
   kamera.html?k=KODE) dan tidak tercetak di kartu. QR "Momen Tamu" tidak memakai kode.
   Tamu yang membuka kamera.html tanpa kode melihat layar "Scan ulang QR-nya ya".
