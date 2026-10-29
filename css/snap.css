@@ -1,0 +1,92 @@
+/* ===== SNAP: tiap section = tepat 1 layar HP; satu geseran = satu halaman ===== */
+html{scroll-snap-type:y mandatory}
+html.nosnap{scroll-snap-type:none}
+main>section:not([hidden]),main>footer{
+  min-height:100vh;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:calc(34px + env(safe-area-inset-top,0px)) 24px calc(92px + env(safe-area-inset-bottom,0px));
+  scroll-snap-align:start;scroll-snap-stop:always}
+main>section.hero:not([hidden]){padding:0;justify-content:flex-end}
+main>section:not([hidden])>*,main>footer>*{width:100%}
+
+/* ===== MEMPELAI: foto memenuhi layar, tetap berbingkai lengkung ===== */
+#mempelai:not([hidden]){display:block;min-height:0;padding:0;max-width:none;scroll-snap-align:none;scroll-snap-stop:normal;background:var(--wine-d)}
+#mempelai>.person{
+  position:relative;width:100%;max-width:none!important;height:100vh;height:100svh;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:flex-end;align-items:center;
+  padding:0 34px calc(78px + env(safe-area-inset-bottom,0px));
+  background:radial-gradient(circle at 50% 0,#a8334f 0,transparent 60%),linear-gradient(170deg,var(--wine),var(--wine-d) 75%,#2a0310);
+  scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden}
+#mempelai .amp{display:none}
+#mempelai .arch{
+  position:absolute;z-index:0;left:14px;right:14px;top:calc(14px + env(safe-area-inset-top,0px));bottom:14px;
+  width:auto;height:auto;max-width:none;aspect-ratio:auto;margin:0;
+  border-radius:999px 999px 24px 24px;border:3px solid #fff;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(243,220,154,.9),0 0 0 9px rgba(255,255,255,.1),0 22px 50px rgba(0,0,0,.5);
+  background-size:cover;background-position:50% 22%}
+#mempelai .arch::before{content:"";position:absolute;z-index:2;inset:9px;border:1px solid rgba(243,220,154,.85);border-radius:999px 999px 16px 16px;pointer-events:none}
+#mempelai .arch::after{content:"";position:absolute;z-index:1;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 46%,rgba(40,0,14,.5) 66%,rgba(40,0,14,.9) 100%)}
+#mempelai .person h3,#mempelai .person p{position:relative;z-index:3;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+#mempelai .person h3{font-size:1.65rem;line-height:1.2;margin:0 0 6px;max-width:22ch}
+#mempelai .person p{font-size:.92rem;line-height:1.5;max-width:26ch;margin:0 auto;font-weight:400}
+#mempelai .person.rv.l,#mempelai .person.rv.r{transform:none}   /* halaman penuh: cukup memudar, tidak menggeser */
+@media(min-width:700px){#mempelai .arch{left:calc(50% - 250px);right:calc(50% - 250px)}}
+
+/* ===== GALERI: kartu foto menyesuaikan tinggi layar ===== */
+#galeri .title{margin-bottom:14px}
+@media(max-width:699px){#gal{--w:min(80vw,calc((100svh - 300px) * .75))}}
+@media(min-width:700px){#gal{--w:min(260px,calc((100svh - 300px) * .75))}}
+
+/* ===== UCAPAN: daftar ucapan mengisi sisa layar dan bisa digulir sendiri ===== */
+#ucapan:not([hidden]){justify-content:flex-start}
+#ucapan .wishes{flex:1 1 0;min-height:96px;max-height:none;overflow-y:auto;margin-top:18px}
+#ucapan .wish{margin-top:14px;gap:9px}
+#ucapan .title{margin-bottom:14px}
+#ucapan>p{margin-bottom:0}
+#ucapan:not([hidden]){display:block;min-height:0;padding:0;max-width:none;scroll-snap-align:none;scroll-snap-stop:normal}
+#ucapan .uc-1,#ucapan .uc-2{width:100%;max-width:none;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;align-items:center;
+  padding:calc(30px + env(safe-area-inset-top,0px)) 22px calc(92px + env(safe-area-inset-bottom,0px));scroll-snap-align:start;scroll-snap-stop:always}
+#ucapan .uc-1{justify-content:center}
+#ucapan .uc-1>*{width:100%;max-width:520px}
+#ucapan .uc-1>p{margin:0}
+#ucapan .title{font-size:1.7rem;margin-bottom:6px}
+/* kotak jumlah ucapan dipadatkan */
+#ucapan #wishHead{margin:12px 0 14px}
+#ucapan .wb-head{padding:12px 16px;border-radius:18px}
+#ucapan .wb-ico{display:none}
+#ucapan .wb-num{font-size:2.5rem;margin-top:0}
+#ucapan .wb-lbl{font-size:.7rem;margin-top:2px}
+#ucapan .wb-stats{margin-top:8px}
+#ucapan .wb-stats span{padding:3px 12px;font-size:.76rem}
+/* formulir dipadatkan */
+#ucapan .wish{padding:14px;gap:8px;margin-top:0}
+#ucapan .wish input:not([type=radio]),#ucapan .wish textarea{padding:9px 12px}
+#ucapan .wish textarea{height:76px;resize:none}
+#ucapan .wish .att legend{margin-bottom:4px}
+#ucapan .wish .att span{padding:8px}
+#ucapan .wish .small{min-height:1em;margin:0}
+/* halaman 2: daftar ucapan, tombol halaman tetap di bawah */
+#ucapan .uc-2{height:100vh;height:100svh;justify-content:flex-start}
+#ucapan .uc-2::before{content:"Ucapan para tamu";font:500 1.5rem/1.2 "Playfair Display",Georgia,serif;color:var(--wine);margin-bottom:14px;flex:none}
+#ucapan #wishBox{flex:1 1 0;min-height:0;width:100%;max-width:520px;margin:0;display:flex;flex-direction:column}
+#ucapan .wb-list{flex:1 1 0;min-height:0;overflow-y:auto;margin-top:0;padding:4px 2px 8px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#ucapan .wb-pg{flex:none;margin-top:10px}
+#ucapan .wb-info{flex:none;margin-top:6px}
+#ucapan .uc-2:has(.wb-empty){display:none}   /* belum ada ucapan: halaman daftar disembunyikan */
+
+/* ===== HP pendek (tinggi <= 700px): dipadatkan supaya tetap muat satu layar ===== */
+@media (max-height:700px){
+  #ucapan .uc-1>p{display:none}
+  #acara .card{padding:14px 14px;margin-bottom:10px}
+  #acara .card h3{font-size:1.12rem;margin-bottom:4px}
+  #acara .card p{font-size:.88rem;line-height:1.5}
+  #acara .when{margin-bottom:6px}
+  #acara .card .pill{margin-top:8px;padding:6px 18px;font-size:.85rem}
+  #acara .title{margin-bottom:14px}
+  main>section:not([hidden]),main>footer{padding-top:calc(22px + env(safe-area-inset-top,0px))}
+  #mempelai .person h3{font-size:1.4rem}
+  #mempelai .person p{font-size:.85rem}
+}
+
+@media (max-width:380px){footer .names{font-size:2.1rem}}
