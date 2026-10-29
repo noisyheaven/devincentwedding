@@ -98,6 +98,27 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
 #lbx{top:calc(8px + env(safe-area-inset-top,0px));right:10px;z-index:3}
 #lbp{left:8px;top:50%;margin-top:-24px;z-index:3}#lbn{right:8px;top:50%;margin-top:-24px;z-index:3}
 
+/* ----- suka (like) ----- */
+.pol .lkb{position:absolute;right:6px;bottom:6px;z-index:2;display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.93);color:#c43b5a;font:700 .74rem/1 Poppins,system-ui,sans-serif;padding:4px 8px 4px 6px;border-radius:99px;box-shadow:0 1px 4px rgba(0,0,0,.28)}
+.pol .lkb[hidden]{display:none}
+.pol .lkb svg{width:12px;height:12px;fill:#e8466c}
+#lkrow{margin-top:10px;display:flex;justify-content:center}
+#lkrow[hidden]{display:none}
+.lkbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 18px;border-radius:99px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.1);color:#fff;font:500 .92rem/1 Poppins,system-ui,sans-serif;cursor:pointer}
+.lkbtn svg{width:24px;height:24px;fill:#e8466c;stroke:#e8466c;stroke-width:0;transition:transform .2s}
+.lkbtn:not([aria-pressed=true]) svg{fill:none;stroke:#fff;stroke-width:3}
+.lkbtn[aria-pressed=true]{background:#fff;color:#c43b5a;border-color:#fff}
+.lkbtn:disabled{cursor:default;opacity:.95}
+.lkbtn:disabled:not([aria-pressed=true]){background:rgba(255,255,255,.14)}
+.lkbtn:disabled svg{fill:#e8466c;stroke:none}
+.lkbtn b{font-weight:600;min-width:1ch}
+.lkbtn b[hidden]{display:none}
+.lkbtn.pop svg{animation:lkpop .45s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes lkpop{0%{transform:scale(.6)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
+#lblm{display:block;margin-top:6px;opacity:.85;font-size:.76rem}
+#lblm[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){.lkbtn.pop svg{animation:none}}
+
 
 </style>
 </head>
@@ -140,7 +161,10 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
   <button class="lbb" id="lbp" aria-label="Sebelumnya">‹</button>
   <button class="lbb" id="lbn" aria-label="Berikutnya">›</button>
   <div class="stage"><img id="lbi" alt=""></div>
-  <div class="cap"><span id="lbc"></span><small id="lbt"></small><a id="lbd" href="#" target="_blank" rel="noopener">⬇ Unduh</a></div>
+  <div class="cap"><span id="lbc"></span><small id="lbt"></small>
+    <div id="lkrow" hidden><button type="button" id="lbl" class="lkbtn" aria-pressed="false" aria-label="Suka foto ini"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 35C7 26 4 17 8.5 12c4.4-4.6 9.6-2.2 11.5 3 1.9-5.2 7.1-7.6 11.5-3C36 17 33 26 20 35z" stroke-linejoin="round"/></svg><b id="lbln" hidden></b></button></div>
+    <small id="lblm" role="status" hidden></small>
+    <a id="lbd" href="#" target="_blank" rel="noopener">⬇ Unduh</a></div>
 </div>
 
 
@@ -201,6 +225,30 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
   function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
   function pages() { return Math.max(1, Math.ceil(items.length / PER)); }
 
+  /* ---------- suka (like) ---------- */
+  var HEART = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 35C7 26 4 17 8.5 12c4.4-4.6 9.6-2.2 11.5 3 1.9-5.2 7.1-7.6 11.5-3C36 17 33 26 20 35z"/></svg>';
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  var mine = {}; try { mine = JSON.parse(lsGet("dc_likes") || "{}") || {}; } catch (e) { mine = {}; }   // foto yang sudah disuka di HP ini
+  function saveMine() { lsSet("dc_likes", JSON.stringify(mine)); }
+  function guestCode() { var c = lsGet("dc_k") || ""; return /^[A-Za-z0-9_-]{1,40}$/.test(c) ? c : ""; }   // ada = tamu ini sudah memindai QR kamera
+  function guestToken() {
+    var t = lsGet("dc_tk") || "";
+    if (!/^[a-z0-9]{12,40}$/i.test(t)) {
+      var cs = "abcdefghijklmnopqrstuvwxyz0123456789", a = new Uint8Array(20); t = "";
+      if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(a); else for (var j = 0; j < 20; j++) a[j] = Math.random() * 256;
+      for (var i = 0; i < 20; i++) t += cs[a[i] % 36];
+      lsSet("dc_tk", t);
+    }
+    return t;
+  }
+  function paintBadge(s, x) { var n = x.l || 0; s.hidden = n < 1; s.lastChild.textContent = n; }   // tanpa suka: lambang hati tidak tampil
+  function mkBadge(x) { var s = document.createElement("span"); s.className = "lkb"; s.innerHTML = HEART + "<b></b>"; paintBadge(s, x); return s; }
+  function paintBadges() {
+    var cells = $("grid").querySelectorAll(".pol");
+    for (var i = 0; i < cells.length; i++) { var k = idx(cells[i].getAttribute("data-id")); if (k >= 0) paintBadge(cells[i].querySelector(".lkb"), items[k]); }
+  }
+
   /* ---------- ambil data ---------- */
   function setNote(html, cls) {
     var n = $("note");
@@ -223,6 +271,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
     list.forEach(function (x) { if (loaded && !seen[x.i]) fresh[x.i] = 1; });
     list.forEach(function (x) { seen[x.i] = 1; });
     items = list;
+    paintBadges(); syncLb();
     $("count").hidden = !total; $("count").textContent = "📷 " + total + " foto";
     if (page > 0 && anchor) { var k = idx(anchor); if (k >= 0) page = Math.floor(k / PER); }   // tetap di foto yang sama walau ada foto baru
     if (page >= pages()) page = pages() - 1;
@@ -243,7 +292,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
     var im = document.createElement("span"); im.className = "im";
     var bg = document.createElement("img"); bg.className = "bgb"; bg.alt = ""; bg.setAttribute("aria-hidden", "true");   // latar buram dari foto yang sama, mengisi sisi bila rasio foto berbeda
     var img = document.createElement("img"); img.decoding = "async"; img.alt = "Foto oleh " + x.n;   // lewat DOM supaya nama tamu tidak bisa menyisipkan kode
-    im.appendChild(bg); im.appendChild(img);
+    im.appendChild(bg); im.appendChild(img); im.appendChild(mkBadge(x)); b.setAttribute("data-id", x.i);
     img.addEventListener("load", function () { bg.src = img.currentSrc || img.src; bg.classList.add("ok"); });
     var by = document.createElement("span"); by.className = "by"; by.textContent = x.n;
     b.appendChild(deco); b.appendChild(im); b.appendChild(by);
@@ -291,12 +340,13 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
   }, { passive: true });
 
   /* ---------- lightbox ---------- */
-  var cur = -1;
+  var cur = -1, curId = "";
   function idx(id) { for (var i = 0; i < items.length; i++) if (items[i].i === id) return i; return -1; }
   function openLb(id) { cur = idx(id); if (cur < 0) return; $("lb").hidden = false; showLb(); }
   function closeLb() { $("lb").hidden = true; $("lbi").removeAttribute("src"); }
   function showLb() {
     var x = items[cur]; if (!x) return;
+    curId = x.i; lkMsg(""); paintLike();
     var im = $("lbi"); im.style.opacity = .35;
     im.onload = function () { im.style.opacity = 1; };
     im.onerror = function () { im.onerror = null; im.src = alt(x.i, 1600); };
@@ -305,6 +355,48 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
     $("lbd").href = "https://drive.google.com/uc?export=download&id=" + x.i;
     [cur - 1, cur + 1].forEach(function (k) { if (items[k]) new Image().src = thumb(items[k].i, 1600); });   // siapkan foto sebelah
   }
+  /* ---------- suka di dalam lightbox ---------- */
+  var pend = {}, msgT = 0;
+  function lkMsg(t) { var el = $("lblm"); el.textContent = t || ""; el.hidden = !t; clearTimeout(msgT); if (t) msgT = setTimeout(function () { el.hidden = true; }, 3200); }
+  function paintLike() {
+    var x = items[idx(curId)], row = $("lkrow"), b = $("lbl"), n = $("lbln");
+    if (!x) { row.hidden = true; return; }
+    var cnt = x.l || 0, can = !!guestCode();
+    row.hidden = !can && cnt < 1;                       // belum memindai QR & belum ada suka: tidak ada lambang hati
+    b.disabled = !can;                                  // tamu yang belum memindai QR hanya melihat jumlah suka
+    b.setAttribute("aria-pressed", can && mine[x.i] ? "true" : "false");
+    n.hidden = cnt < 1; n.textContent = cnt;
+  }
+  function syncLb() { if ($("lb").hidden) return; var k = idx(curId); if (k >= 0) { cur = k; paintLike(); } }   // foto baru masuk di depan daftar: tetap di foto yang sama
+  function askScan() {
+    if (!window.QRScan) return;
+    QRScan.open({ title: "Pindai QR Kamera Acara", verifyUrl: URL_, onCode: function (code) { lsSet("dc_k", code); paintLike(); lkMsg("Siap! Sekarang kamu bisa memberi suka."); } });
+  }
+  function toggleLike() {
+    var x = items[idx(curId)], c = guestCode();
+    if (!x || !c || pend[x.i]) return;
+    var on = !mine[x.i], before = x.l || 0;
+    function apply(v, n) { if (v) mine[x.i] = 1; else delete mine[x.i]; if (n != null) x.l = n; saveMine(); paintLike(); paintBadges(); }
+    apply(on, Math.max(0, before + (on ? 1 : -1)));     // langsung terlihat; dikoreksi bila server menolak
+    var bt = $("lbl"); if (on) { bt.classList.remove("pop"); void bt.offsetWidth; bt.classList.add("pop"); }
+    if (!URL_) return;
+    pend[x.i] = 1;
+    fetch(URL_, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ act: "like", k: c, tk: guestToken(), id: x.i, on: on }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        delete pend[x.i];
+        if (j && j.ok) { apply(!!j.liked, j.n); return; }
+        apply(!on, before);
+        var e = j && j.err;
+        if (e === "denied") { lkMsg("Kode acara tidak cocok. Pindai ulang QR kamera."); askScan(); }
+        else if (e === "gone") lkMsg("Foto ini sudah tidak ada.");
+        else lkMsg("Server sedang sibuk, coba lagi.");
+      })
+      .catch(function () { delete pend[x.i]; apply(!on, before); lkMsg("Gagal terkirim. Periksa sinyal."); });
+  }
+  $("lbl").addEventListener("click", toggleLike);
+
   function step(d) { var n = cur + d; if (n < 0 || n >= items.length) return; cur = n; showLb(); }
   $("lbx").addEventListener("click", closeLb);
   $("lbp").addEventListener("click", function () { step(-1); });
