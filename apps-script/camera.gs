@@ -10,7 +10,7 @@ var ACCESS_CODE = "GANTI_KODE_ACARA";
 
 // KAMERA DITUTUP: setelah waktu ini foto baru ditolak server (jam server, tidak bisa diakali lewat jam HP).
 // Galeri (momen.html) tetap bisa dilihat. Format: tahun-bulan-tanggalTjam:menit:detik+07:00 (WIB).
-var CLOSE_AT = "2026-12-26T21:00:00+07:00";
+var CLOSE_AT = "2026-12-26T19:00:00+07:00";
 // Tenggang untuk foto yang SUDAH dipotret sebelum waktu tutup tetapi baru terkirim sesudahnya (sinyal jelek).
 // Dalam menit. 0 = tanpa tenggang.
 var GRACE_MIN = 60;
@@ -20,6 +20,9 @@ var MAX_TOTAL = 3000;            // batas total foto (pengaman)
 var MAX_B64 = 14000000;          // batas ukuran satu foto (karakter base64, kira-kira 10 MB)
 var LIST_LIMIT = 600;            // jumlah foto terbaru yang ditampilkan di galeri
 var MAX_POSTS_PER_MIN = 80;      // semua tamu digabung
+var MAX_LIKES_PER_MIN = 240;     // suka/batal suka, semua tamu digabung
+var MAX_LIKE_ROWS = 50000;       // batas baris sheet "Suka" (pengaman)
+var LIKE_SHEET = "Suka";
 var FOLDER_NAME = "Disposable Camera - Vincensius & Devi";
 var SHEET_NAME = "Foto";
 var CACHE_KEY = "photos_v1";
@@ -40,6 +43,66 @@ function sheet_() {
     sh.appendRow(["Waktu", "Nama", "Token", "FileId", "IdFoto", "Tampil"]);
   }
   return sh;
+}
+
+// ===== SUKA (LIKE) =====
+// Sheet "Suka": satu baris = satu tamu menyukai satu foto. Kolom: Waktu, FileId, Token.
+function likeSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(LIKE_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(LIKE_SHEET);
+    sh.appendRow(["Waktu", "FileId", "Token"]);
+  }
+  return sh;
+}
+
+function likeCounts_() {
+  var sh = likeSheet_(), n = sh.getLastRow(), o = {};
+  if (n < 2) return o;
+  var v = sh.getRange(2, 2, n - 1, 1).getValues();
+  for (var i = 0; i < v.length; i++) { var id = String(v[i][0]); if (id) o[id] = (o[id] || 0) + 1; }
+  return o;
+}
+
+function photoExists_(id) {   // foto harus ada di sheet "Foto" (kolom D = FileId)
+  var sh = sheet_(), n = sh.getLastRow();
+  if (n < 2) return false;
+  var v = sh.getRange(2, 4, n - 1, 1).getValues();
+  for (var i = 0; i < v.length; i++) if (String(v[i][0]) === id) return true;
+  return false;
+}
+
+// Suka / batal suka. Satu tamu (token) hanya bisa satu suka per foto. Hanya tamu yang membawa kode acara yang benar (dari QR kamera).
+function like_(d) {
+  if (!codeOk_(d.k)) return json_({ ok: false, err: "denied" });
+  var tk = String(d.tk || ""), id = String(d.id || ""), on = d.on !== false;
+  if (!/^[a-z0-9]{12,40}$/i.test(tk) || !/^[A-Za-z0-9_-]{10,80}$/.test(id)) return json_({ ok: false, err: "bad" });
+  var cache = CacheService.getScriptCache(), c = Number(cache.get("rl_like") || 0);
+  if (c >= MAX_LIKES_PER_MIN) return json_({ ok: false, err: "busy" });
+  cache.put("rl_like", String(c + 1), 60);
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(15000)) return json_({ ok: false, err: "busy" });
+  try {
+    if (!photoExists_(id)) return json_({ ok: false, err: "gone" });
+    var sh = likeSheet_(), n = sh.getLastRow(), count = 0, row = 0;
+    if (n >= 2) {
+      var v = sh.getRange(2, 2, n - 1, 2).getValues();
+      for (var i = 0; i < v.length; i++) {
+        if (String(v[i][0]) === id) { count++; if (String(v[i][1]) === tk) row = i + 2; }
+      }
+    }
+    if (on && !row) {
+      if (n > MAX_LIKE_ROWS) return json_({ ok: false, err: "full" });
+      sh.appendRow([new Date(), id, tk]); count++;
+    } else if (!on && row) {
+      sh.deleteRow(row); count--;
+    }
+    cache.remove(CACHE_KEY);
+    return json_({ ok: true, n: count, liked: on });
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function folder_() {
@@ -130,8 +193,9 @@ function list_() {
   var rows = sh.getRange(2, 1, n - 1, 6).getValues().filter(function (r) {
     return r[3] && r[5] !== false && ok[String(r[3])];
   });
+  var likes = likeCounts_();
   var items = rows.reverse().slice(0, LIST_LIMIT).map(function (r) {
-    return { i: String(r[3]), n: String(r[1]), t: new Date(r[0]).getTime() };
+    return { i: String(r[3]), n: String(r[1]), t: new Date(r[0]).getTime(), l: likes[String(r[3])] || 0 };
   });
   return { ok: true, total: rows.length, items: items };
 }
@@ -156,6 +220,7 @@ function doGet(e) {
 function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
+    if (d && d.act === "like") return like_(d);   // suka / batal suka
     var tk = String(d.tk || "");
     var pid = String(d.pid || "");
     var name = String(d.n || "").trim().slice(0, 40);
@@ -228,6 +293,8 @@ function resetSemua() {
   while (it.hasNext()) { it.next().setTrashed(true); c++; }
   var sh = sheet_(), n = sh.getLastRow();
   if (n > 1) sh.deleteRows(2, n - 1);
+  var ls = likeSheet_(), ln = ls.getLastRow();   // suka ikut dikosongkan
+  if (ln > 1) ls.deleteRows(2, ln - 1);
   CacheService.getScriptCache().remove(CACHE_KEY);
   Logger.log("Reset: " + c + " foto dibuang, sheet dikosongkan.");
 }
