@@ -71,7 +71,7 @@ main>section:not([hidden])>*,main>footer>*{width:100%}
 #ucapan .uc-2{height:100vh;height:100svh;justify-content:flex-start}
 #ucapan .uc-2::before{content:"Ucapan para tamu";font:500 1.5rem/1.2 "Playfair Display",Georgia,serif;color:var(--wine);margin-bottom:14px;flex:none}
 #ucapan #wishBox{flex:1 1 0;min-height:0;width:100%;max-width:520px;margin:0;display:flex;flex-direction:column}
-#ucapan .wb-list{flex:1 1 0;min-height:0;overflow-y:auto;margin-top:0;padding:4px 2px 8px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#ucapan .wb-list{flex:1 1 0;min-height:0;overflow-y:auto;margin-top:0;padding:4px 2px 8px;-webkit-overflow-scrolling:touch}   /* JANGAN pakai overscroll-behavior:contain di sini: gulir berhenti di daftar dan tidak bisa lanjut ke halaman terakhir */
 #ucapan .wb-pg{flex:none;margin-top:10px}
 #ucapan .wb-info{flex:none;margin-top:6px}
 #ucapan .uc-2:has(.wb-empty){display:none}   /* belum ada ucapan: halaman daftar disembunyikan */
