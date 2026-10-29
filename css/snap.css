@@ -91,3 +91,11 @@ main>section:not([hidden])>*,main>footer>*{width:100%}
 }
 
 @media (max-width:380px){footer .names{font-size:2.1rem}}
+
+/* ===== HALAMAN TERAKHIR: tetap pas 1 layar saat bilah alamat browser HP menyusut =====
+   100svh = tinggi layar saat bilah alamat tampil; saat bilah menyusut layar jadi lebih tinggi (100lvh). Kalau halaman terakhir
+   hanya setinggi 100svh, titik snap-nya ada di bawah batas gulir, sehingga bagian bawah halaman sebelumnya ikut terlihat dan
+   halaman tidak bisa digulir lagi. Jadi halaman terakhir dibuat setinggi 100lvh, isinya digeser ke atas sebesar selisihnya. */
+@supports (height:100lvh){
+  main>footer{min-height:100lvh;padding-bottom:calc(92px + env(safe-area-inset-bottom,0px) + (100lvh - 100svh))}
+}
