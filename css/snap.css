@@ -29,7 +29,8 @@ main>section:not([hidden])>*,main>footer>*{width:100%}
   background:linear-gradient(180deg,transparent 46%,rgba(40,0,14,.5) 66%,rgba(40,0,14,.9) 100%)}
 #mempelai .person h3,#mempelai .person p{position:relative;z-index:3;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
 #mempelai .person h3{font-size:1.65rem;line-height:1.2;margin:0 0 6px;max-width:22ch}
-#mempelai .person p{font-size:.92rem;line-height:1.5;max-width:26ch;margin:0 auto;font-weight:400}
+#mempelai .person p{font-size:.92rem;line-height:1.55;max-width:none;margin:0 auto;font-weight:400}
+#mempelai .person .nm{white-space:nowrap;font-weight:500}   /* nama orang tua tidak pernah terpotong ke baris berikutnya */
 #mempelai .person.rv.l,#mempelai .person.rv.r{transform:none}   /* halaman penuh: cukup memudar, tidak menggeser */
 @media(min-width:700px){#mempelai .arch{left:calc(50% - 250px);right:calc(50% - 250px)}}
 
