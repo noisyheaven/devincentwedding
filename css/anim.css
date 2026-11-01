@@ -1,0 +1,15 @@
+/* ===== Animasi tambahan (anime.js) =====
+   Semua aturan di sini hanya melengkapi js/anim.js. Kalau anim.js tidak jalan, halaman tetap normal. */
+
+/* Ornamen garis + hati di bawah judul bagian (digambar oleh anim.js) */
+.orn{display:block;width:150px;max-width:60%;height:15px;margin:-10px auto 16px;overflow:visible;pointer-events:none}
+.orn path{fill:none;stroke:var(--wine);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.orn .hr{fill:rgba(168,51,79,0);stroke-width:1.5}
+@media (max-height:640px){.orn{display:none}}
+
+/* Garis penghubung tanggal di Rangkaian Acara tumbuh dari atas ke bawah (variabel --ln dianimasikan) */
+#acara .tl li:not(:last-child)::before{transform-origin:50% 0;transform:scaleY(var(--ln,1))}
+
+/* Foto hero: dipotong rapi saat membesar mengikuti geseran */
+.hero-top{overflow:hidden}
+.hero-img{will-change:transform}
