@@ -429,7 +429,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;max-width:1000px;wid
 (function () {
   "use strict";
   var btn = document.getElementById("takePhoto"); if (!btn) return;
-  var DEF = Date.parse("2026-12-26T21:00:00+07:00");   // cadangan; samakan dengan CLOSE_AT di camera.gs
+  var DEF = Date.parse("2026-12-26T19:00:00+07:00");   // cadangan; samakan dengan CLOSE_AT di camera.gs
   var ls = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
   var closeAt = Number(ls("dc_close")) || DEF, skew = 0, timer = 0;
   function apply() {
