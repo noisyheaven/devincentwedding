@@ -228,7 +228,7 @@ h2{font:500 1.9rem/1.2 "Playfair Display",Georgia,serif;margin:6px 0 10px}
   }
 
   /* ---------- jam penutupan (mengikuti jam server, bukan jam HP) ---------- */
-  var CLOSE_DEFAULT = Date.parse("2026-12-26T21:00:00+07:00");   // cadangan sebelum jam server diterima; server tetap yang menentukan
+  var CLOSE_DEFAULT = Date.parse("2026-12-26T19:00:00+07:00");   // cadangan sebelum jam server diterima; server tetap yang menentukan
   var closeAt = 0, skew = 0, closeT = 0;
   function schedule() {   // tutup otomatis tepat saat waktunya, walau kamera sedang terbuka
     clearTimeout(closeT);
